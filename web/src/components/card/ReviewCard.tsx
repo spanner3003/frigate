@@ -39,6 +39,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { LuCircle } from "react-icons/lu";
 import { MdAutoAwesome } from "react-icons/md";
+import { GenAISummaryDialog } from "../overlay/chip/GenAISummaryChip";
 
 type ReviewCardProps = {
   event: ReviewSegment;
@@ -180,7 +181,7 @@ export default function ReviewCard({
                     key={`${object}-${idx}`}
                     className="rounded-full bg-muted-foreground p-1"
                   >
-                    {getIconForLabel(object, "size-3 text-white")}
+                    {getIconForLabel(object, "object", "size-3 text-white")}
                   </div>
                 ))}
                 {event.data.audio.map((audio, idx) => (
@@ -188,7 +189,7 @@ export default function ReviewCard({
                     key={`${audio}-${idx}`}
                     className="rounded-full bg-muted-foreground p-1"
                   >
-                    {getIconForLabel(audio, "size-3 text-white")}
+                    {getIconForLabel(audio, "audio", "size-3 text-white")}
                   </div>
                 ))}
               </div>
@@ -219,12 +220,14 @@ export default function ReviewCard({
         />
       </div>
       {event.data.metadata?.title && (
-        <div className="flex items-center gap-1.5 rounded bg-secondary/50">
-          <MdAutoAwesome className="size-3 shrink-0 text-primary" />
-          <span className="truncate text-xs text-primary">
-            {event.data.metadata.title}
-          </span>
-        </div>
+        <GenAISummaryDialog review={event}>
+          <div className="flex items-center gap-1.5 rounded bg-secondary/50 hover:underline">
+            <MdAutoAwesome className="size-3 shrink-0 text-primary" />
+            <span className="truncate text-xs text-primary">
+              {event.data.metadata.title}
+            </span>
+          </div>
+        </GenAISummaryDialog>
       )}
     </div>
   );

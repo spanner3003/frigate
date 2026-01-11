@@ -20,7 +20,7 @@ Here are some of the cameras I recommend:
 - <a href="https://amzn.to/4fwoNWA" target="_blank" rel="nofollow noopener sponsored">Loryta(Dahua) IPC-T549M-ALED-S3</a> (affiliate link)
 - <a href="https://amzn.to/3YXpcMw" target="_blank" rel="nofollow noopener sponsored">Loryta(Dahua) IPC-T54IR-AS</a> (affiliate link)
 - <a href="https://amzn.to/3AvBHoY" target="_blank" rel="nofollow noopener sponsored">Amcrest IP5M-T1179EW-AI-V3</a> (affiliate link)
-- <a href="https://amzn.to/4ltOpaC" target="_blank" rel="nofollow noopener sponsored">HIKVISION DS-2CD2387G2P-LSU/SL ColorVu 8MP Panoramic Turret IP Camera</a> (affiliate link)
+- <a href="https://www.bhphotovideo.com/c/product/1705511-REG/hikvision_colorvu_ds_2cd2387g2p_lsu_sl_8mp_network.html" target="_blank" rel="nofollow noopener">HIKVISION DS-2CD2387G2P-LSU/SL ColorVu 8MP Panoramic Turret IP Camera</a> (affiliate link)
 
 I may earn a small commission for my endorsement, recommendation, testimonial, or link to any products or services from this website.
 
@@ -38,9 +38,11 @@ If the EQ13 is out of stock, the link below may take you to a suggested alternat
 
 :::
 
-| Name                                                                                                          | Coral Inference Speed | Coral Compatibility | Notes                                                                                     |
-| ------------------------------------------------------------------------------------------------------------- | --------------------- | ------------------- | ----------------------------------------------------------------------------------------- |
-| Beelink EQ13 (<a href="https://amzn.to/4jn2qVr" target="_blank" rel="nofollow noopener sponsored">Amazon</a>) | 5-10ms                | USB                 | Dual gigabit NICs for easy isolated camera network. Easily handles several 1080p cameras. |
+| Name                                                                                                          | Capabilities                                                               | Notes                                               |
+| ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------- |
+| Beelink EQ13 (<a href="https://amzn.to/4jn2qVr" target="_blank" rel="nofollow noopener sponsored">Amazon</a>) | Can run object detection on several 1080p cameras with low-medium activity | Dual gigabit NICs for easy isolated camera network. |
+| Intel 1120p ([Amazon](https://www.amazon.com/Beelink-i3-1220P-Computer-Display-Gigabit/dp/B0DDCKT9YP)         | Can handle a large number of 1080p cameras with high activity              |                                                     |
+| Intel 125H  ([Amazon](https://www.amazon.com/MINISFORUM-Pro-125H-Barebone-Computer-HDMI2-1/dp/B0FH21FSZM)     | Can handle a significant number of 1080p cameras with high activity        | Includes NPU for more efficient detection in 0.17+  |
 
 ## Detectors
 
@@ -129,10 +131,16 @@ In real-world deployments, even with multiple cameras running concurrently, Frig
 
 ### Google Coral TPU
 
+:::warning
+
+The Coral is no longer recommended for new Frigate installations, except in deployments with particularly low power requirements or hardware incapable of utilizing alternative AI accelerators for object detection. Instead, we suggest using one of the numerous other supported object detectors. Frigate will continue to provide support for the Coral TPU for as long as practicably possible given its still one of the most power-efficient devices for executing object detection models.
+
+:::
+
 Frigate supports both the USB and M.2 versions of the Google Coral.
 
 - The USB version is compatible with the widest variety of hardware and does not require a driver on the host machine. However, it does lack the automatic throttling features of the other versions.
-- The PCIe and M.2 versions require installation of a driver on the host. Follow the instructions for your version from https://coral.ai
+- The PCIe and M.2 versions require installation of a driver on the host. https://github.com/jnicolson/gasket-builder should be used.
 
 A single Coral can handle many cameras using the default model and will be sufficient for the majority of users. You can calculate the maximum performance of your Coral based on the inference speed reported by Frigate. With an inference speed of 10, your Coral will top out at `1000/10=100`, or 100 frames per second. If your detection fps is regularly getting close to that, you should first consider tuning motion masks. If those are already properly configured, a second Coral may be needed.
 

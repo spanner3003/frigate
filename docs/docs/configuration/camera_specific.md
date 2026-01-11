@@ -188,10 +188,10 @@ go2rtc:
     # example for connectin to a Reolink camera that supports two way talk
     your_reolink_camera_twt:
       - "ffmpeg:http://reolink_ip/flv?port=1935&app=bcs&stream=channel0_main.bcs&user=username&password=password#video=copy#audio=copy#audio=opus"
-      - "rtsp://username:password@reolink_ip/Preview_01_sub
+      - "rtsp://username:password@reolink_ip/Preview_01_sub"
     your_reolink_camera_twt_sub:
       - "ffmpeg:http://reolink_ip/flv?port=1935&app=bcs&stream=channel0_ext.bcs&user=username&password=password"
-      - "rtsp://username:password@reolink_ip/Preview_01_sub
+      - "rtsp://username:password@reolink_ip/Preview_01_sub"
     # example for connecting to a Reolink NVR
     your_reolink_camera_via_nvr:
       - "ffmpeg:http://reolink_nvr_ip/flv?port=1935&app=bcs&stream=channel3_main.bcs&user=username&password=password" # channel numbers are 0-15
@@ -227,6 +227,12 @@ cameras:
 
 ### Unifi Protect Cameras
 
+:::note 
+
+Unifi G5s cameras and newer need a Unifi Protect server to enable rtsps stream, it's not posible to enable it in standalone mode.
+
+:::
+
 Unifi protect cameras require the rtspx stream to be used with go2rtc.
 To utilize a Unifi protect camera, modify the rtsps link to begin with rtspx.
 Additionally, remove the "?enableSrtp" from the end of the Unifi link.
@@ -251,6 +257,10 @@ ffmpeg:
 ### TP-Link VIGI Cameras
 
 TP-Link VIGI cameras need some adjustments to the main stream settings on the camera itself to avoid issues. The stream needs to be configured as `H264` with `Smart Coding` set to `off`. Without these settings you may have problems when trying to watch recorded footage. For example Firefox will stop playback after a few seconds and show the following error message: `The media playback was aborted due to a corruption problem or because the media used features your browser did not support.`.
+
+### Wyze Wireless Cameras
+
+Some community members have found better performance on Wyze cameras by using an alternative firmware known as [Thingino](https://thingino.com/).
 
 ## USB Cameras (aka Webcams)
 

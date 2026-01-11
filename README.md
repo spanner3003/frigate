@@ -40,7 +40,7 @@ If you would like to make a donation to support development, please use [Github 
 This project is licensed under the **MIT License**.
 
 - **Code:** The source code, configuration files, and documentation in this repository are available under the [MIT License](LICENSE). You are free to use, modify, and distribute the code as long as you include the original copyright notice.
-- **Trademarks:** The "Frigate" name, the "Frigate NVR" brand, and the Frigate logo are **trademarks of Frigate LLC** and are **not** covered by the MIT License.
+- **Trademarks:** The "Frigate" name, the "Frigate NVR" brand, and the Frigate logo are **trademarks of Frigate, Inc.** and are **not** covered by the MIT License.
 
 Please see our [Trademark Policy](TRADEMARK.md) for details on acceptable use of our brand assets.
 
@@ -67,7 +67,7 @@ Please see our [Trademark Policy](TRADEMARK.md) for details on acceptable use of
 ### Built-in mask and zone editor
 
 <div>
-<img width="800" alt="Multi-camera scrubbing" src="https://github.com/blakeblackshear/frigate/assets/569905/d7885fc3-bfe6-452f-b7d0-d957cb3e31f5">
+<img width="800" alt="Built-in mask and zone editor" src="https://github.com/blakeblackshear/frigate/assets/569905/d7885fc3-bfe6-452f-b7d0-d957cb3e31f5">
 </div>
 
 ## Translations
@@ -80,4 +80,4 @@ We use [Weblate](https://hosted.weblate.org/projects/frigate-nvr/) to support la
 
 ---
 
-**Copyright © 2025 Frigate LLC.**
+**Copyright © 2026 Frigate, Inc.**

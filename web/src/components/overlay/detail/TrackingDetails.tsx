@@ -266,7 +266,7 @@ export function TrackingDetails({
 
   const label = event.sub_label
     ? event.sub_label
-    : getTranslatedLabel(event.label);
+    : getTranslatedLabel(event.label, event.data.type);
 
   const getZoneColor = useCallback(
     (zoneName: string) => {
@@ -665,6 +665,7 @@ export function TrackingDetails({
                 >
                   {getIconForLabel(
                     event.sub_label ? event.label + "-verified" : event.label,
+                    event.data.type,
                     "size-4 text-white",
                   )}
                 </div>
@@ -849,7 +850,11 @@ function LifecycleIconRow({
     () =>
       Array.isArray(item.data.attribute_box) &&
       item.data.attribute_box.length >= 4
-        ? (item.data.attribute_box[2] * item.data.attribute_box[3]).toFixed(4)
+        ? (
+            item.data.attribute_box[2] *
+            item.data.attribute_box[3] *
+            100
+          ).toFixed(2)
         : undefined,
     [item.data.attribute_box],
   );
@@ -857,7 +862,7 @@ function LifecycleIconRow({
   const areaPct = useMemo(
     () =>
       Array.isArray(item.data.box) && item.data.box.length >= 4
-        ? (item.data.box[2] * item.data.box[3]).toFixed(4)
+        ? (item.data.box[2] * item.data.box[3] * 100).toFixed(2)
         : undefined,
     [item.data.box],
   );
@@ -994,7 +999,7 @@ function LifecycleIconRow({
         <div className="ml-3 flex-shrink-0 px-1 text-right text-xs text-primary-variant">
           <div className="flex flex-row items-center gap-3">
             <div className="whitespace-nowrap">{formattedEventTimestamp}</div>
-            {((isAdmin && config?.plus?.enabled) || item.data.box) && (
+            {isAdmin && config?.plus?.enabled && item.data.box && (
               <DropdownMenu open={isOpen} onOpenChange={setIsOpen}>
                 <DropdownMenuTrigger>
                   <div className="rounded p-1 pr-2" role="button">

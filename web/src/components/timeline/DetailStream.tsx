@@ -14,6 +14,7 @@ import { FrigateConfig } from "@/types/frigateConfig";
 import useSWR from "swr";
 import ActivityIndicator from "../indicators/activity-indicator";
 import { Event } from "@/types/event";
+import { EventType } from "@/types/search";
 import { getIconForLabel } from "@/utils/iconUtil";
 import { REVIEW_PADDING, ReviewSegment } from "@/types/review";
 import { LuChevronDown, LuCircle, LuChevronRight } from "react-icons/lu";
@@ -25,10 +26,13 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 import { Link } from "react-router-dom";
 import { Switch } from "@/components/ui/switch";
 import { useUserPersistence } from "@/hooks/use-user-persistence";
-import { isDesktop } from "react-device-detect";
+import { isDesktop, isIOS, isMobile } from "react-device-detect";
 import { resolveZoneName } from "@/hooks/use-zone-friendly-name";
 import { PiSlidersHorizontalBold } from "react-icons/pi";
 import { MdAutoAwesome } from "react-icons/md";
+import { isPWA } from "@/utils/isPWA";
+import { isInIframe } from "@/utils/isIFrame";
+import { GenAISummaryDialog } from "../overlay/chip/GenAISummaryChip";
 
 type DetailStreamProps = {
   reviewItems?: ReviewSegment[];
@@ -100,7 +104,25 @@ export default function DetailStream({
     }
   }, [reviewItems, activeReviewId, effectiveTime]);
 
-  // Auto-scroll to current time
+  // Initial scroll to active review (runs immediately when user selects, not during playback)
+  useEffect(() => {
+    if (!scrollRef.current || !activeReviewId || userInteracting || isPlaying)
+      return;
+
+    const element = scrollRef.current.querySelector(
+      `[data-review-id="${activeReviewId}"]`,
+    ) as HTMLElement;
+
+    if (element) {
+      setProgrammaticScroll();
+      scrollIntoView(element, {
+        scrollMode: "if-needed",
+        behavior: isMobile && isIOS && !isPWA && isInIframe ? "auto" : "smooth",
+      });
+    }
+  }, [activeReviewId, setProgrammaticScroll, userInteracting, isPlaying]);
+
+  // Auto-scroll to current time during playback
   useEffect(() => {
     if (!scrollRef.current || userInteracting || !isPlaying) return;
     // Prefer the review whose range contains the effectiveTime. If none
@@ -145,7 +167,8 @@ export default function DetailStream({
           setProgrammaticScroll();
           scrollIntoView(element, {
             scrollMode: "if-needed",
-            behavior: "smooth",
+            behavior:
+              isMobile && isIOS && !isPWA && isInIframe ? "auto" : "smooth",
           });
         }
       }
@@ -324,22 +347,29 @@ function ReviewGroup({
       : null,
   );
 
-  const rawIconLabels: string[] = [
+  const rawIconLabels: Array<{ label: string; type: EventType }> = [
     ...(fetchedEvents
-      ? fetchedEvents.map((e) =>
-          e.sub_label ? e.label + "-verified" : e.label,
-        )
-      : (review.data?.objects ?? [])),
-    ...(review.data?.audio ?? []),
+      ? fetchedEvents.map((e) => ({
+          label: e.sub_label ? e.label + "-verified" : e.label,
+          type: e.data.type,
+        }))
+      : (review.data?.objects ?? []).map((obj) => ({
+          label: obj,
+          type: "object" as EventType,
+        }))),
+    ...(review.data?.audio ?? []).map((audio) => ({
+      label: audio,
+      type: "audio" as EventType,
+    })),
   ];
 
   // limit to 5 icons
   const seen = new Set<string>();
-  const iconLabels: string[] = [];
-  for (const lbl of rawIconLabels) {
-    if (!seen.has(lbl)) {
-      seen.add(lbl);
-      iconLabels.push(lbl);
+  const iconLabels: Array<{ label: string; type: EventType }> = [];
+  for (const item of rawIconLabels) {
+    if (!seen.has(item.label)) {
+      seen.add(item.label);
+      iconLabels.push(item);
       if (iconLabels.length >= 5) break;
     }
   }
@@ -396,12 +426,12 @@ function ReviewGroup({
             <div className="flex flex-row gap-3">
               <div className="text-sm font-medium">{displayTime}</div>
               <div className="relative flex items-center gap-2 text-white">
-                {iconLabels.slice(0, 5).map((lbl, idx) => (
+                {iconLabels.slice(0, 5).map(({ label: lbl, type }, idx) => (
                   <div
                     key={`${lbl}-${idx}`}
                     className="rounded-full bg-muted-foreground p-1"
                   >
-                    {getIconForLabel(lbl, "size-3 text-white")}
+                    {getIconForLabel(lbl, type, "size-3 text-white")}
                   </div>
                 ))}
               </div>
@@ -417,7 +447,18 @@ function ReviewGroup({
                       {review.data.metadata.title}
                     </TooltipContent>
                   </Tooltip>
-                  <span className="truncate">{review.data.metadata.title}</span>
+                  <GenAISummaryDialog
+                    review={review}
+                    onOpen={(open) => {
+                      if (open) {
+                        onSeek(review.start_time, false);
+                      }
+                    }}
+                  >
+                    <span className="truncate hover:underline">
+                      {review.data.metadata.title}
+                    </span>
+                  </GenAISummaryDialog>
                 </div>
               )}
               <div className="flex flex-row items-center gap-1.5">
@@ -483,7 +524,11 @@ function ReviewGroup({
                 >
                   <div className="ml-1.5 flex items-center gap-2 text-sm font-medium">
                     <div className="rounded-full bg-muted-foreground p-1">
-                      {getIconForLabel(audioLabel, "size-3 text-white")}
+                      {getIconForLabel(
+                        audioLabel,
+                        "audio",
+                        "size-3 text-white",
+                      )}
                     </div>
                     <span>{getTranslatedLabel(audioLabel, "audio")}</span>
                   </div>
@@ -585,6 +630,7 @@ function EventList({
             >
               {getIconForLabel(
                 event.sub_label ? event.label + "-verified" : event.label,
+                event.data.type,
                 "size-3 text-white",
               )}
             </div>
@@ -711,7 +757,7 @@ function LifecycleItem({
   const areaPct = useMemo(
     () =>
       Array.isArray(item?.data.box) && item?.data.box.length >= 4
-        ? (item?.data.box[2] * item?.data.box[3]).toFixed(4)
+        ? (item?.data.box[2] * item?.data.box[3] * 100).toFixed(2)
         : undefined,
     [item],
   );
@@ -733,7 +779,11 @@ function LifecycleItem({
     () =>
       Array.isArray(item?.data.attribute_box) &&
       item?.data.attribute_box.length >= 4
-        ? (item?.data.attribute_box[2] * item?.data.attribute_box[3]).toFixed(4)
+        ? (
+            item?.data.attribute_box[2] *
+            item?.data.attribute_box[3] *
+            100
+          ).toFixed(2)
         : undefined,
     [item],
   );
@@ -782,21 +832,27 @@ function LifecycleItem({
               <div className="flex flex-col gap-1">
                 <div className="flex items-start gap-1">
                   <span className="text-muted-foreground">
-                    {t("trackingDetails.lifecycleItemDesc.header.score")}
+                    {t("trackingDetails.lifecycleItemDesc.header.score", {
+                      ns: "views/explore",
+                    })}
                   </span>
                   <span className="font-medium text-foreground">{score}</span>
                 </div>
 
                 <div className="flex items-start gap-1">
                   <span className="text-muted-foreground">
-                    {t("trackingDetails.lifecycleItemDesc.header.ratio")}
+                    {t("trackingDetails.lifecycleItemDesc.header.ratio", {
+                      ns: "views/explore",
+                    })}
                   </span>
                   <span className="font-medium text-foreground">{ratio}</span>
                 </div>
 
                 <div className="flex items-start gap-1">
                   <span className="text-muted-foreground">
-                    {t("trackingDetails.lifecycleItemDesc.header.area")}{" "}
+                    {t("trackingDetails.lifecycleItemDesc.header.area", {
+                      ns: "views/explore",
+                    })}{" "}
                     {attributeAreaPx !== undefined &&
                       attributeAreaPct !== undefined && (
                         <span className="text-muted-foreground">
@@ -806,7 +862,7 @@ function LifecycleItem({
                   </span>
                   {areaPx !== undefined && areaPct !== undefined ? (
                     <span className="font-medium text-foreground">
-                      {areaPx} {t("pixels", { ns: "common" })}{" "}
+                      {t("information.pixels", { ns: "common", area: areaPx })}{" "}
                       <span className="text-secondary-foreground">·</span>{" "}
                       {areaPct}%
                     </span>
@@ -819,7 +875,9 @@ function LifecycleItem({
                   attributeAreaPct !== undefined && (
                     <div className="flex items-start gap-1">
                       <span className="text-muted-foreground">
-                        {t("trackingDetails.lifecycleItemDesc.header.area")}{" "}
+                        {t("trackingDetails.lifecycleItemDesc.header.area", {
+                          ns: "views/explore",
+                        })}{" "}
                         {attributeAreaPx !== undefined &&
                           attributeAreaPct !== undefined && (
                             <span className="text-muted-foreground">
@@ -828,7 +886,8 @@ function LifecycleItem({
                           )}
                       </span>
                       <span className="font-medium text-foreground">
-                        {attributeAreaPx} {t("pixels", { ns: "common" })}{" "}
+                        {attributeAreaPx}{" "}
+                        {t("information.pixels", { ns: "common" })}{" "}
                         <span className="text-secondary-foreground">·</span>{" "}
                         {attributeAreaPct}%
                       </span>
