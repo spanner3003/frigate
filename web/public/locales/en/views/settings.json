@@ -386,11 +386,11 @@
     "title": "Camera Review Settings",
     "object_descriptions": {
       "title": "Generative AI Object Descriptions",
-      "desc": "Temporarily enable/disable Generative AI object descriptions for this camera. When disabled, AI generated descriptions will not be requested for tracked objects on this camera."
+      "desc": "Temporarily enable/disable Generative AI object descriptions for this camera until Frigate restarts. When disabled, AI generated descriptions will not be requested for tracked objects on this camera."
     },
     "review_descriptions": {
       "title": "Generative AI Review Descriptions",
-      "desc": "Temporarily enable/disable Generative AI review descriptions for this camera. When disabled, AI generated descriptions will not be requested for review items on this camera."
+      "desc": "Temporarily enable/disable Generative AI review descriptions for this camera until Frigate restarts. When disabled, AI generated descriptions will not be requested for review items on this camera."
     },
     "review": {
       "title": "Review",
@@ -468,6 +468,11 @@
         }
       },
       "polygonDrawing": {
+        "type": {
+          "zone": "zone",
+          "motion_mask": "motion mask",
+          "object_mask": "object mask"
+        },
         "removeLastPoint": "Remove last point",
         "reset": {
           "label": "Clear all points"
@@ -728,10 +733,7 @@
           },
           "requirements": {
             "title": "Password requirements:",
-            "length": "At least 8 characters",
-            "uppercase": "At least one uppercase letter",
-            "digit": "At least one digit",
-            "special": "At least one special character (!@#$%^&*(),.?\":{}|<>)"
+            "length": "At least 12 characters"
           },
           "match": "Passwords match",
           "notMatch": "Passwords don't match"

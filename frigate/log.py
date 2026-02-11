@@ -26,15 +26,16 @@ LOG_HANDLER.setFormatter(
 
 # filter out norfair warning
 LOG_HANDLER.addFilter(
-    lambda record: not record.getMessage().startswith(
-        "You are using a scalar distance function"
+    lambda record: (
+        not record.getMessage().startswith("You are using a scalar distance function")
     )
 )
 
 # filter out tflite logging
 LOG_HANDLER.addFilter(
-    lambda record: "Created TensorFlow Lite XNNPACK delegate for CPU."
-    not in record.getMessage()
+    lambda record: (
+        "Created TensorFlow Lite XNNPACK delegate for CPU." not in record.getMessage()
+    )
 )
 
 
@@ -89,6 +90,7 @@ def apply_log_levels(default: str, log_levels: dict[str, LogLevel]) -> None:
         "ws4py": LogLevel.error,
         "PIL": LogLevel.warning,
         "numba": LogLevel.warning,
+        "google_genai.models": LogLevel.warning,
         **log_levels,
     }
 

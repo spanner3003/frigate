@@ -81,7 +81,8 @@
     },
     "inProgress": "У процесі",
     "invalidStartTime": "Недійсний час початку",
-    "invalidEndTime": "Недійсний час завершення"
+    "invalidEndTime": "Недійсний час завершення",
+    "never": "Ніколи"
   },
   "button": {
     "exitFullscreen": "Вийти з повноекранного режиму",
@@ -248,7 +249,8 @@
     "show": "Показати {{item}}",
     "ID": "ID",
     "none": "Жоден",
-    "all": "Усі"
+    "all": "Усі",
+    "other": "Інше"
   },
   "toast": {
     "save": {

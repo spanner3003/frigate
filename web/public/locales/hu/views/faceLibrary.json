@@ -90,9 +90,10 @@
   "nofaces": "Nincs elérhető arc",
   "documentTitle": "Arc könyvtár - Frigate",
   "train": {
-    "title": "Tanít",
+    "title": "Friss felismerések",
     "empty": "Nincs friss arcfelismerés",
-    "aria": "Válassza ki a tanítást"
+    "aria": "Válassza ki a tanítást",
+    "titleShort": "Friss"
   },
   "pixels": "{{area}}px",
   "selectItem": "KIválasztani {{item}}-et"

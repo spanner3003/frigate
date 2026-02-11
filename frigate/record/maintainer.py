@@ -97,6 +97,7 @@ class RecordingMaintainer(threading.Thread):
         self.object_recordings_info: dict[str, list] = defaultdict(list)
         self.audio_recordings_info: dict[str, list] = defaultdict(list)
         self.end_time_cache: dict[str, Tuple[datetime.datetime, float]] = {}
+        self.unexpected_cache_files_logged: bool = False
 
     async def move_files(self) -> None:
         cache_files = [
@@ -112,7 +113,14 @@ class RecordingMaintainer(threading.Thread):
         for cache in cache_files:
             cache_path = os.path.join(CACHE_DIR, cache)
             basename = os.path.splitext(cache)[0]
-            camera, date = basename.rsplit("@", maxsplit=1)
+            try:
+                camera, date = basename.rsplit("@", maxsplit=1)
+            except ValueError:
+                if not self.unexpected_cache_files_logged:
+                    logger.warning("Skipping unexpected files in cache")
+                    self.unexpected_cache_files_logged = True
+                continue
+
             start_time = datetime.datetime.strptime(
                 date, CACHE_SEGMENT_FORMAT
             ).astimezone(datetime.timezone.utc)
@@ -164,7 +172,13 @@ class RecordingMaintainer(threading.Thread):
 
             cache_path = os.path.join(CACHE_DIR, cache)
             basename = os.path.splitext(cache)[0]
-            camera, date = basename.rsplit("@", maxsplit=1)
+            try:
+                camera, date = basename.rsplit("@", maxsplit=1)
+            except ValueError:
+                if not self.unexpected_cache_files_logged:
+                    logger.warning("Skipping unexpected files in cache")
+                    self.unexpected_cache_files_logged = True
+                continue
 
             # important that start_time is utc because recordings are stored and compared in utc
             start_time = datetime.datetime.strptime(
@@ -194,8 +208,10 @@ class RecordingMaintainer(threading.Thread):
             processed_segment_count = len(
                 list(
                     filter(
-                        lambda r: r["start_time"].timestamp()
-                        < most_recently_processed_frame_time,
+                        lambda r: (
+                            r["start_time"].timestamp()
+                            < most_recently_processed_frame_time
+                        ),
                         grouped_recordings[camera],
                     )
                 )

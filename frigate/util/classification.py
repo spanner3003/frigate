@@ -43,6 +43,7 @@ def write_training_metadata(model_name: str, image_count: int) -> None:
         model_name: Name of the classification model
         image_count: Number of images used in training
     """
+    model_name = model_name.strip()
     clips_model_dir = os.path.join(CLIPS_DIR, model_name)
     os.makedirs(clips_model_dir, exist_ok=True)
 
@@ -70,6 +71,7 @@ def read_training_metadata(model_name: str) -> dict[str, any] | None:
     Returns:
         Dictionary with last_training_date and last_training_image_count, or None if not found
     """
+    model_name = model_name.strip()
     clips_model_dir = os.path.join(CLIPS_DIR, model_name)
     metadata_path = os.path.join(clips_model_dir, TRAINING_METADATA_FILE)
 
@@ -95,6 +97,7 @@ def get_dataset_image_count(model_name: str) -> int:
     Returns:
         Total count of images across all categories
     """
+    model_name = model_name.strip()
     dataset_dir = os.path.join(CLIPS_DIR, model_name, "dataset")
 
     if not os.path.exists(dataset_dir):
@@ -126,6 +129,7 @@ class ClassificationTrainingProcess(FrigateProcess):
             "TF_KERAS_MOBILENET_V2_WEIGHTS_URL",
             "",
         )
+        model_name = model_name.strip()
         super().__init__(
             stop_event=None,
             priority=PROCESS_PRIORITY_LOW,
@@ -292,6 +296,7 @@ class ClassificationTrainingProcess(FrigateProcess):
 def kickoff_model_training(
     embeddingRequestor: EmbeddingsRequestor, model_name: str
 ) -> None:
+    model_name = model_name.strip()
     requestor = InterProcessRequestor()
     requestor.send_data(
         UPDATE_MODEL_STATE,
@@ -359,6 +364,7 @@ def collect_state_classification_examples(
         model_name: Name of the classification model
         cameras: Dict mapping camera names to normalized crop coordinates [x1, y1, x2, y2] (0-1)
     """
+    model_name = model_name.strip()
     dataset_dir = os.path.join(CLIPS_DIR, model_name, "dataset")
 
     # Step 1: Get review items for the cameras
@@ -714,6 +720,7 @@ def collect_object_classification_examples(
         model_name: Name of the classification model
         label: Object label to collect (e.g., "person", "car")
     """
+    model_name = model_name.strip()
     dataset_dir = os.path.join(CLIPS_DIR, model_name, "dataset")
     temp_dir = os.path.join(dataset_dir, "temp")
     os.makedirs(temp_dir, exist_ok=True)

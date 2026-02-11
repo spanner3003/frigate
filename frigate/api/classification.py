@@ -73,7 +73,7 @@ def get_faces():
         face_dict[name] = []
 
         for file in filter(
-            lambda f: (f.lower().endswith((".webp", ".png", ".jpg", ".jpeg"))),
+            lambda f: f.lower().endswith((".webp", ".png", ".jpg", ".jpeg")),
             os.listdir(face_dir),
         ):
             face_dict[name].append(file)
@@ -582,7 +582,7 @@ def get_classification_dataset(name: str):
         dataset_dict[category_name] = []
 
         for file in filter(
-            lambda f: (f.lower().endswith((".webp", ".png", ".jpg", ".jpeg"))),
+            lambda f: f.lower().endswith((".webp", ".png", ".jpg", ".jpeg")),
             os.listdir(category_dir),
         ):
             dataset_dict[category_name].append(file)
@@ -693,7 +693,7 @@ def get_classification_images(name: str):
         status_code=200,
         content=list(
             filter(
-                lambda f: (f.lower().endswith((".webp", ".png", ".jpg", ".jpeg"))),
+                lambda f: f.lower().endswith((".webp", ".png", ".jpg", ".jpeg")),
                 os.listdir(train_dir),
             )
         ),
@@ -759,14 +759,27 @@ def delete_classification_dataset_images(
         CLIPS_DIR, sanitize_filename(name), "dataset", sanitize_filename(category)
     )
 
+    deleted_count = 0
     for id in list_of_ids:
         file_path = os.path.join(folder, sanitize_filename(id))
 
         if os.path.isfile(file_path):
             os.unlink(file_path)
+            deleted_count += 1
 
     if os.path.exists(folder) and not os.listdir(folder) and category.lower() != "none":
         os.rmdir(folder)
+
+    # Update training metadata to reflect deleted images
+    # This ensures the dataset is marked as changed after deletion
+    # (even if the total count happens to be the same after adding and deleting)
+    if deleted_count > 0:
+        sanitized_name = sanitize_filename(name)
+        metadata = read_training_metadata(sanitized_name)
+        if metadata:
+            last_count = metadata.get("last_training_image_count", 0)
+            updated_count = max(0, last_count - deleted_count)
+            write_training_metadata(sanitized_name, updated_count)
 
     return JSONResponse(
         content=({"success": True, "message": "Successfully deleted images."}),

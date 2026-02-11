@@ -75,7 +75,8 @@
     "day_other": "{{time}} dagar",
     "inProgress": "Pågår",
     "invalidStartTime": "Ogiltig starttid",
-    "invalidEndTime": "Ogiltig sluttid"
+    "invalidEndTime": "Ogiltig sluttid",
+    "never": "Aldrig"
   },
   "button": {
     "save": "Spara",
@@ -158,7 +159,8 @@
       "bg": "Български (Bulgariska)",
       "gl": "Galego (Galiciska)",
       "id": "Bahasa Indonesia (Indonesiska)",
-      "ur": "اردو (Urdu)"
+      "ur": "اردو (Urdu)",
+      "hr": "Hrvatski (kroatiska)"
     },
     "darkMode": {
       "withSystem": {
@@ -260,7 +262,8 @@
     "show": "Visa {{item}}",
     "ID": "ID",
     "none": "Ingen",
-    "all": "Alla"
+    "all": "Alla",
+    "other": "Annat"
   },
   "unit": {
     "speed": {

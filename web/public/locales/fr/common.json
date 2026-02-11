@@ -90,7 +90,8 @@
     },
     "inProgress": "En cours",
     "invalidStartTime": "Heure de début invalide",
-    "invalidEndTime": "Heure de fin invalide"
+    "invalidEndTime": "Heure de fin invalide",
+    "never": "Jamais"
   },
   "button": {
     "apply": "Appliquer",
@@ -174,7 +175,8 @@
       "bg": "Български (Bulgare)",
       "gl": "Galego (Galicien)",
       "id": "Bahasa Indonesia (Indonésien)",
-      "ur": "اردو (Ourdou)"
+      "ur": "اردو (Ourdou)",
+      "hr": "Hrvatski (Croate)"
     },
     "appearance": "Apparence",
     "darkMode": {
@@ -279,7 +281,8 @@
     "show": "Afficher {{item}}",
     "ID": "ID",
     "none": "Aucun",
-    "all": "Tous"
+    "all": "Tous",
+    "other": "Autre"
   },
   "unit": {
     "speed": {

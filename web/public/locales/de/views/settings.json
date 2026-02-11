@@ -49,7 +49,7 @@
         "desc": "Standardmäßig werden die letzten Warnmeldungen auf dem Live-Dashboard als kurze Videoschleifen abgespielt. Deaktiviere diese Option, um nur ein statisches Bild der letzten Warnungen auf diesem Gerät/Browser anzuzeigen."
       },
       "automaticLiveView": {
-        "desc": "Wechsle automatisch zur Live Ansicht der Kamera, wenn einen Aktivität erkannt wurde. Wenn du diese Option deaktivierst, werden die statischen Kamerabilder auf der Liveübersicht nur einmal pro Minute aktualisiert.",
+        "desc": "Zeigt automatisch das Live-Bild einer Kamera an, wenn eine Aktivität erkannt wird. Ist diese Option deaktiviert, werden Kamerabilder im Live-Dashboard nur einmal pro Minute aktualisiert.",
         "label": "Automatische Live Ansicht"
       },
       "displayCameraNames": {
@@ -544,7 +544,7 @@
           "placeholder": "Passwort eingeben",
           "requirements": {
             "title": "Passwort Anforderungen:",
-            "length": "Mindestens 8 Zeichen",
+            "length": "Mindestens 12 Zeichen",
             "uppercase": "Mindestens ein Großbuchstabe",
             "digit": "Mindestens eine Ziffer",
             "special": "Mindestens ein Sonderzeichen (!@#$%^&*(),.?\":{}|<>)"
@@ -1265,11 +1265,11 @@
     "title": "Kamera-Einstellungen überprüfen",
     "object_descriptions": {
       "title": "Generative KI Objektbeschreibungen",
-      "desc": "Aktiviere/deaktiviere vorübergehend die Objektbeschreibungen durch Generative KI für diese Kamera. Wenn diese Option deaktiviert ist, werden keine KI-generierten Beschreibungen für verfolgte Objekte dieser Kamera erstellt."
+      "desc": "Aktiviere/deaktiviere vorübergehend die Objektbeschreibungen durch generative KI für diese Kamera. Wenn diese Option deaktiviert ist, werden keine KI-generierten Beschreibungen für verfolgte Objekte dieser Kamera erstellt."
     },
     "review_descriptions": {
       "title": "Generative KI Review Beschreibungen",
-      "desc": "Generative KI Review Beschreibungen für diese Kamera vorübergehend aktivieren/deaktivieren. Wenn diese Option deaktiviert ist, werden für die Review Elemente dieser Kamera keine KI-generierten Beschreibungen angefordert."
+      "desc": "Aktivieren/deaktivieren Sie vorübergehend die generativen KI-Überprüfungsbeschreibungen für diese Kamera, bis Frigate neu gestartet wird. Wenn diese Option deaktiviert ist, werden für Überprüfungselemente auf dieser Kamera keine KI-generierten Beschreibungen angefordert."
     },
     "review": {
       "title": "Überprüfung",

@@ -23,8 +23,28 @@ sys.path.remove("/opt/frigate")
 yaml = YAML()
 
 # Check if arbitrary exec sources are allowed (defaults to False for security)
-ALLOW_ARBITRARY_EXEC = os.environ.get(
-    "GO2RTC_ALLOW_ARBITRARY_EXEC", "false"
+allow_arbitrary_exec = None
+if "GO2RTC_ALLOW_ARBITRARY_EXEC" in os.environ:
+    allow_arbitrary_exec = os.environ.get("GO2RTC_ALLOW_ARBITRARY_EXEC")
+elif (
+    os.path.isdir("/run/secrets")
+    and os.access("/run/secrets", os.R_OK)
+    and "GO2RTC_ALLOW_ARBITRARY_EXEC" in os.listdir("/run/secrets")
+):
+    allow_arbitrary_exec = (
+        Path(os.path.join("/run/secrets", "GO2RTC_ALLOW_ARBITRARY_EXEC"))
+        .read_text()
+        .strip()
+    )
+# check for the add-on options file
+elif os.path.isfile("/data/options.json"):
+    with open("/data/options.json") as f:
+        raw_options = f.read()
+    options = json.loads(raw_options)
+    allow_arbitrary_exec = options.get("go2rtc_allow_arbitrary_exec")
+
+ALLOW_ARBITRARY_EXEC = allow_arbitrary_exec is not None and str(
+    allow_arbitrary_exec
 ).lower() in ("true", "1", "yes")
 
 FRIGATE_ENV_VARS = {k: v for k, v in os.environ.items() if k.startswith("FRIGATE_")}

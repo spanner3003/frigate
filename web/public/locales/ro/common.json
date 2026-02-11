@@ -81,7 +81,8 @@
     "second_other": "{{time}} de secunde",
     "inProgress": "În desfășurare",
     "invalidStartTime": "Oră de început invalidă",
-    "invalidEndTime": "Oră de sfârșit invalidă"
+    "invalidEndTime": "Oră de sfârșit invalidă",
+    "never": "Niciodată"
   },
   "menu": {
     "documentation": {
@@ -134,7 +135,8 @@
       "bg": "Български (Bulgară)",
       "gl": "Galego (Galiciană)",
       "id": "Bahasa Indonesia (Indoneziană)",
-      "ur": "اردو (Urdu)"
+      "ur": "اردو (Urdu)",
+      "hr": "Hrvatski (Croată)"
     },
     "theme": {
       "default": "Implicit",
@@ -247,7 +249,8 @@
     "show": "Afișează {{item}}",
     "ID": "ID",
     "none": "Niciuna",
-    "all": "Toate"
+    "all": "Toate",
+    "other": "Altele"
   },
   "selectItem": "Selectează {{item}}",
   "pagination": {

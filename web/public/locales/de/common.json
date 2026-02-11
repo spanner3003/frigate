@@ -84,7 +84,8 @@
     },
     "inProgress": "Im Gange",
     "invalidStartTime": "Ungültige Startzeit",
-    "invalidEndTime": "Ungültige Endzeit"
+    "invalidEndTime": "Ungültige Endzeit",
+    "never": "Nie"
   },
   "button": {
     "save": "Speichern",
@@ -130,7 +131,8 @@
     "show": "Zeige {{item}}",
     "ID": "ID",
     "none": "Nichts",
-    "all": "Alle"
+    "all": "Alle",
+    "other": "andere"
   },
   "menu": {
     "configurationEditor": "Konfigurationseditor",
@@ -177,7 +179,8 @@
       "lt": "Lietuvių (Litauisch)",
       "bg": "Български (bulgarisch)",
       "gl": "Galego (Galicisch)",
-      "id": "Bahasa Indonesia (Indonesisch)"
+      "id": "Bahasa Indonesia (Indonesisch)",
+      "hr": "Hrvatski (Kroatisch)"
     },
     "appearance": "Erscheinung",
     "theme": {

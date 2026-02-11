@@ -537,7 +537,7 @@
           "hide": "Skjul passord",
           "requirements": {
             "title": "Passordkrav:",
-            "length": "Minst 8 tegn",
+            "length": "Minst 12 tegn",
             "uppercase": "Minst en stor bokstav",
             "digit": "Minst ett tall",
             "special": "Minst ett spesialtegn (!@#$%^&*(),.?\":{}|<>)"
@@ -591,7 +591,7 @@
         "incorrectCurrentPassword": "Nåværende passord er feil",
         "passwordVerificationFailed": "Kunne ikke verifisere passord",
         "multiDeviceWarning": "Andre enheter du er logget inn på vil kreve ny innlogging innen {{refresh_time}}.",
-        "multiDeviceAdmin": "Du kan også tvinge alle brukere til å logge inn på nytt umiddelbart ved å rotere JWT-hemmeligheten din."
+        "multiDeviceAdmin": "Du kan også tvinge alle brukere til å logge inn på nytt ved å endre JWT (JSON Web Token)-nøkkelen."
       }
     },
     "table": {
@@ -1274,11 +1274,11 @@
     "title": "Innstillinger for kamerainspeksjon",
     "object_descriptions": {
       "title": "Generative KI-objektbeskrivelser",
-      "desc": "Midlertidig aktiver/deaktiver generative KI-objektbeskrivelser for dette kameraet. Når deaktivert, vil KI-genererte beskrivelser ikke bli forespurt for sporede objekter på dette kameraet."
+      "desc": "Midlertidig aktiver/deaktiver generative KI-objektbeskrivelser for dette kameraet til Frigate starter på nytt. Når deaktivert, vil KI-genererte beskrivelser ikke bli forespurt for sporede objekter på dette kameraet."
     },
     "review_descriptions": {
       "title": "Generative KI beskrivelser for inspeksjon",
-      "desc": "Midlertidig aktiver/deaktiver inspeksjonsbeskrivelser med generativ KI for dette kameraet. Når deaktivert, vil det ikke bli bedt om KI-genererte beskrivelser for inspeksjonselementer på dette kameraet."
+      "desc": "Midlertidig aktiver/deaktiver inspeksjonsbeskrivelser med generativ KI for dette kameraet til Frigate startes på nytt. Når deaktivert, vil det ikke bli bedt om KI-genererte beskrivelser for inspeksjonselementer på dette kameraet."
     },
     "review": {
       "title": "Inspiser",
@@ -1292,11 +1292,11 @@
       "noDefinedZones": "Ingen soner er definert for dette kameraet.",
       "objectAlertsTips": "Alle {{alertsLabels}}-objekter på {{cameraName}} vil bli vist som varsler.",
       "zoneObjectAlertsTips": "Alle {{alertsLabels}}-objekter oppdaget i {{zone}} på {{cameraName}} vil bli vist som varsler.",
-      "objectDetectionsTips": "Alle {{detectionsLabels}}-objekter som ikke er kategorisert på {{cameraName}}, vil bli vist som deteksjoner uavhengig av hvilken sone de er i.",
+      "objectDetectionsTips": "Alle {{detectionsLabels}}-objekter som ikke er kategorisert for kamera {{cameraName}}, vil bli vist som deteksjoner uavhengig av hvilken sone de er i.",
       "zoneObjectDetectionsTips": {
-        "text": "Alle {{detectionsLabels}}-objekter som ikke er kategorisert i {{zone}} på {{cameraName}}, vil bli vist som deteksjoner.",
-        "notSelectDetections": "Alle {{detectionsLabels}}-objekter oppdaget i {{zone}} på {{cameraName}} som ikke er kategorisert som varsler, vil bli vist som deteksjoner uavhengig av hvilken sone de er i.",
-        "regardlessOfZoneObjectDetectionsTips": "Alle {{detectionsLabels}}-objekter som ikke er kategorisert på {{cameraName}}, vil bli vist som deteksjoner uavhengig av hvilken sone de er i."
+        "text": "Alle {{detectionsLabels}}-objekter som ikke er kategorisert i sone {{zone}} for kamera {{cameraName}}, vil bli vist som deteksjoner.",
+        "notSelectDetections": "Alle {{detectionsLabels}}-objekter oppdaget i sone {{zone}} for kamera {{cameraName}} som ikke er kategorisert som varsler, vil bli vist som deteksjoner uavhengig av hvilken sone de er i.",
+        "regardlessOfZoneObjectDetectionsTips": "Alle {{detectionsLabels}}-objekter som ikke er kategorisert for kamera {{cameraName}}, vil bli vist som deteksjoner uavhengig av hvilken sone de er i."
       },
       "unsavedChanges": "Ulagrede innstillinger for inspeksjonsklassifisering for {{camera}}",
       "selectAlertsZones": "Velg soner for varsler",

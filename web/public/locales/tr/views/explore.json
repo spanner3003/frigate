@@ -27,7 +27,7 @@
           "regenerate": "{{provider}} sağlayıcısından yeni açıklama talep edilemedi: {{errorMessage}}",
           "updatedLPRFailed": "Plaka güncellenemedi: {{errorMessage}}",
           "audioTranscription": "Ses çözümlemesi talep edilemedi: {{errorMessage}}",
-          "updatedAttributesFailed": "Öznitelikler güncellenemedi: {{errorMessage}}"
+          "updatedAttributesFailed": "Özellikler güncellenemedi: {{errorMessage}}"
         }
       }
     },
@@ -80,7 +80,10 @@
       "title": "Özellikleri düzenle",
       "desc": "Bu {{label}} için sınıflandırma özelliklerini seçin"
     },
-    "attributes": "Sınıflandırma Özellikleri"
+    "attributes": "Sınıflandırma Özellikleri",
+    "title": {
+      "label": "Başlık"
+    }
   },
   "generativeAI": "Üretken Yapay Zeka",
   "exploreIsUnavailable": {

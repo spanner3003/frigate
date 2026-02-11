@@ -75,6 +75,7 @@ import SearchDetailDialog, {
 } from "@/components/overlay/detail/SearchDetailDialog";
 import { SearchResult } from "@/types/search";
 import { HiSparkles } from "react-icons/hi";
+import { capitalizeFirstLetter } from "@/utils/stringUtil";
 
 type ModelTrainingViewProps = {
   model: CustomClassificationModelConfig;
@@ -88,7 +89,7 @@ export default function ModelTrainingView({ model }: ModelTrainingViewProps) {
   // title
 
   useEffect(() => {
-    document.title = `${model.name.toUpperCase()} - ${t("documentTitle")}`;
+    document.title = `${capitalizeFirstLetter(model.name)} - ${t("documentTitle")}`;
   }, [model.name, t]);
 
   // model state
@@ -620,7 +621,7 @@ function LibrarySelector({
           <div className="flex justify-end gap-2">
             {Object.keys(dataset).length <= 2 ? (
               <Button variant="outline" onClick={() => setConfirmDelete(null)}>
-                {t("button.ok", { ns: "common" })}
+                {t("button.close", { ns: "common" })}
               </Button>
             ) : (
               <>

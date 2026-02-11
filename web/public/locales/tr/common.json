@@ -84,7 +84,8 @@
     },
     "inProgress": "Devam ediyor",
     "invalidStartTime": "Geçersiz başlangıç zamanı",
-    "invalidEndTime": "Geçersiz bitiş zamanı"
+    "invalidEndTime": "Geçersiz bitiş zamanı",
+    "never": "Asla"
   },
   "button": {
     "off": "KAPALI",
@@ -232,7 +233,8 @@
     "show": "{{item}} öğesini göster",
     "ID": "ID",
     "none": "Hiçbiri",
-    "all": "Tümü"
+    "all": "Tümü",
+    "other": "Diğer"
   },
   "notFound": {
     "documentTitle": "Bulunamadı - Frigate",

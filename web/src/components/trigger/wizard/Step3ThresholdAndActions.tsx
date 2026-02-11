@@ -142,7 +142,10 @@ export default function Step3ThresholdAndActions({
               <FormLabel>{t("triggers.dialog.form.actions.title")}</FormLabel>
               <div className="space-y-2">
                 {availableActions.map((action) => (
-                  <div key={action} className="flex items-center space-x-2">
+                  <label
+                    key={action}
+                    className="flex cursor-pointer items-center space-x-2"
+                  >
                     <FormControl>
                       <Checkbox
                         checked={form
@@ -164,10 +167,10 @@ export default function Step3ThresholdAndActions({
                         }}
                       />
                     </FormControl>
-                    <FormLabel className="text-sm font-normal">
+                    <span className="text-sm font-normal">
                       {t(`triggers.actions.${action}`)}
-                    </FormLabel>
-                  </div>
+                    </span>
+                  </label>
                 ))}
               </div>
               <FormDescription>
@@ -197,9 +200,7 @@ export default function Step3ThresholdAndActions({
             {isLoading && <ActivityIndicator className="mr-2 size-5" />}
             {isLoading
               ? t("button.saving", { ns: "common" })
-              : t("triggers.dialog.form.save", {
-                  defaultValue: "Save Trigger",
-                })}
+              : t("button.save", { ns: "common" })}
           </Button>
         </div>
       </form>

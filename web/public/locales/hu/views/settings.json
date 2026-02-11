@@ -6,7 +6,7 @@
     "classification": "Osztályozási beállítások - Frigate",
     "masksAndZones": "Maszk és zónaszerkesztő - Frigate",
     "object": "Hibakeresés - Frigate",
-    "general": "Áltlános Beállítások - Frigate",
+    "general": "Felhasználói felület beállításai - Frigate",
     "frigatePlus": "Frigate+ beállítások - Frigate",
     "notifications": "Értesítések beállítása - Frigate",
     "motionTuner": "Mozgás Hangoló - Frigate",
@@ -778,6 +778,12 @@
     "semanticSearch": {
       "title": "Szemantikus keresés le van tiltva",
       "desc": "A Triggerek használatához engedélyezni kell a szemantikus keresést."
+    },
+    "wizard": {
+      "steps": {
+        "nameAndType": "Név és típus",
+        "configureData": "Configurációs adatok"
+      }
     }
   },
   "roles": {

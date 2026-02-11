@@ -214,6 +214,12 @@ The `exec:`, `echo:`, and `expr:` sources are disabled by default for security. 
 
 :::
 
+:::warning
+
+The `exec:`, `echo:`, and `expr:` sources are disabled by default for security. You must set `GO2RTC_ALLOW_ARBITRARY_EXEC=true` to use them. See [Security: Restricted Stream Sources](#security-restricted-stream-sources) for more information.
+
+:::
+
 NOTE: The output will need to be passed with two curly braces `{{output}}`
 
 ```yaml
