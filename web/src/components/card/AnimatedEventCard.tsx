@@ -19,6 +19,8 @@ import { Button } from "../ui/button";
 import { FaCircleCheck } from "react-icons/fa6";
 import { cn } from "@/lib/utils";
 import { useTranslation } from "react-i18next";
+import { getTranslatedLabel } from "@/utils/i18n";
+import { formatList } from "@/utils/stringUtil";
 
 type AnimatedEventCardProps = {
   event: ReviewSegment;
@@ -50,26 +52,35 @@ export function AnimatedEventCard({
     fetchPreviews: !currentHour,
   });
 
+  const getEventType = useCallback(
+    (text: string) => {
+      if (event.data.sub_labels?.includes(text)) return "manual";
+      if (event.data.audio.includes(text)) return "audio";
+      return "object";
+    },
+    [event],
+  );
+
   const tooltipText = useMemo(() => {
     if (event?.data?.metadata?.title) {
       return event.data.metadata.title;
     }
 
     return (
-      `${[
-        ...new Set([
-          ...(event.data.objects || []),
-          ...(event.data.sub_labels || []),
-          ...(event.data.audio || []),
-        ]),
-      ]
-        .filter((item) => item !== undefined && !item.includes("-verified"))
-        .map((text) => text.charAt(0).toUpperCase() + text.substring(1))
-        .sort()
-        .join(", ")
-        .replaceAll("-verified", "")} ` + t("detected")
+      `${formatList(
+        [
+          ...new Set([
+            ...(event.data.objects || []),
+            ...(event.data.sub_labels || []),
+            ...(event.data.audio || []),
+          ]),
+        ]
+          .filter((item) => item !== undefined && !item.includes("-verified"))
+          .map((text) => getTranslatedLabel(text, getEventType(text)))
+          .sort(),
+      )} ` + t("detected")
     );
-  }, [event, t]);
+  }, [event, getEventType, t]);
 
   // visibility
 

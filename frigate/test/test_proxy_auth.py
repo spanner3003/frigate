@@ -31,6 +31,21 @@ class TestProxyRoleResolution(unittest.TestCase):
         role = resolve_role(headers, self.proxy_config, self.config_roles)
         self.assertEqual(role, "admin")
 
+    def test_role_map_or_matching(self):
+        config = self.proxy_config
+        config.header_map.role_map = {
+            "admin": ["group_admin", "group_privileged"],
+        }
+
+        # OR semantics: a single matching group should map to the role
+        headers = {"x-remote-role": "group_admin"}
+        role = resolve_role(headers, config, self.config_roles)
+        self.assertEqual(role, "admin")
+
+        headers = {"x-remote-role": "group_admin|group_privileged"}
+        role = resolve_role(headers, config, self.config_roles)
+        self.assertEqual(role, "admin")
+
     def test_direct_role_header_with_separator(self):
         config = self.proxy_config
         config.header_map.role_map = None  # disable role_map

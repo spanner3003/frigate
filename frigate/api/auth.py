@@ -439,10 +439,11 @@ def resolve_role(
     Determine the effective role for a request based on proxy headers and configuration.
 
     Order of resolution:
-      1. If a role header is defined in proxy_config.header_map.role:
-         - If a role_map is configured, treat the header as group claims
-           (split by proxy_config.separator) and map to roles.
-         - If no role_map is configured, treat the header as role names directly.
+            1. If a role header is defined in proxy_config.header_map.role:
+                 - If a role_map is configured, treat the header as group claims
+                     (split by proxy_config.separator) and map to roles.
+                     Admin matches short-circuit to admin.
+                 - If no role_map is configured, treat the header as role names directly.
       2. If no valid role is found, return proxy_config.default_role if it's valid in config_roles, else 'viewer'.
 
     Args:
@@ -491,6 +492,12 @@ def resolve_role(
             if any(group in groups for group in required_groups)
         }
         logger.debug("Matched roles from role_map: %s", matched_roles)
+
+        # If admin matches, prioritize it to avoid accidental downgrade when
+        # users belong to both admin and lower-privilege groups.
+        if "admin" in matched_roles and "admin" in config_roles:
+            logger.debug("Resolved role (with role_map) to 'admin'.")
+            return "admin"
 
         if matched_roles:
             resolved = next(

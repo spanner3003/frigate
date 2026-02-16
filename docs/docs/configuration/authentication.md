@@ -166,6 +166,10 @@ In this example:
 - If no mapping matches, Frigate falls back to `default_role` if configured.
 - If `role_map` is not defined, Frigate assumes the role header directly contains `admin`, `viewer`, or a custom role name.
 
+**Note on matching semantics:**
+
+- Admin precedence: if the `admin` mapping matches, Frigate resolves the session to `admin` to avoid accidental downgrade when a user belongs to multiple groups (for example both `admin` and `viewer` groups).
+
 #### Port Considerations
 
 **Authenticated Port (8971)**

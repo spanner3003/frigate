@@ -371,22 +371,23 @@ export default function LivePlayer({
                 </TooltipTrigger>
               </div>
               <TooltipPortal>
-                <TooltipContent className="smart-capitalize">
+                <TooltipContent>
                   {formatList(
                     [
-                      ...new Set([
-                        ...(objects || []).map(({ label, sub_label }) =>
-                          label.endsWith("verified")
-                            ? sub_label
-                            : label.replaceAll("_", " "),
-                        ),
-                      ]),
-                    ]
-                      .filter((label) => label?.includes("-verified") == false)
-                      .map((label) =>
-                        getTranslatedLabel(label.replace("-verified", "")),
-                      )
-                      .sort(),
+                      ...new Set(
+                        (objects || [])
+                          .map(({ label, sub_label }) => {
+                            const isManual = label.endsWith("verified");
+                            const text = isManual ? sub_label : label;
+                            const type = isManual ? "manual" : "object";
+                            return getTranslatedLabel(text, type);
+                          })
+                          .filter(
+                            (translated) =>
+                              translated && !translated.includes("-verified"),
+                          ),
+                      ),
+                    ].sort(),
                   )}
                 </TooltipContent>
               </TooltipPortal>

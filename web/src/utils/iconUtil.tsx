@@ -62,83 +62,86 @@ export function getIconForLabel(
   label: string,
   type: EventType = "object",
   className?: string,
+  key?: string,
 ) {
+  const iconKey = key || label;
+
   if (label.endsWith("-verified")) {
-    return getVerifiedIcon(label, className, type);
+    return getVerifiedIcon(label, className, type, iconKey);
   } else if (label.endsWith("-plate")) {
-    return getRecognizedPlateIcon(label, className, type);
+    return getRecognizedPlateIcon(label, className, type, iconKey);
   }
 
   switch (label) {
     // objects
     case "bear":
-      return <GiPolarBear key={label} className={className} />;
+      return <GiPolarBear key={iconKey} className={className} />;
     case "bicycle":
-      return <FaBicycle key={label} className={className} />;
+      return <FaBicycle key={iconKey} className={className} />;
     case "bird":
-      return <PiBirdFill key={label} className={className} />;
+      return <PiBirdFill key={iconKey} className={className} />;
     case "boat":
-      return <GiSailboat key={label} className={className} />;
+      return <GiSailboat key={iconKey} className={className} />;
     case "bus":
     case "school_bus":
-      return <FaBus key={label} className={className} />;
+      return <FaBus key={iconKey} className={className} />;
     case "car":
     case "vehicle":
-      return <FaCarSide key={label} className={className} />;
+      return <FaCarSide key={iconKey} className={className} />;
     case "cat":
-      return <FaCat key={label} className={className} />;
+      return <FaCat key={iconKey} className={className} />;
     case "deer":
-      return <GiDeer key={label} className={className} />;
+      return <GiDeer key={iconKey} className={className} />;
     case "animal":
     case "bark":
     case "dog":
-      return <FaDog key={label} className={className} />;
+      return <FaDog key={iconKey} className={className} />;
     case "fox":
-      return <GiFox key={label} className={className} />;
+      return <GiFox key={iconKey} className={className} />;
     case "goat":
-      return <GiGoat key={label} className={className} />;
+      return <GiGoat key={iconKey} className={className} />;
     case "horse":
-      return <FaHorse key={label} className={className} />;
+      return <FaHorse key={iconKey} className={className} />;
     case "kangaroo":
-      return <GiKangaroo key={label} className={className} />;
+      return <GiKangaroo key={iconKey} className={className} />;
     case "license_plate":
-      return <LuScanBarcode key={label} className={className} />;
+      return <LuScanBarcode key={iconKey} className={className} />;
     case "motorcycle":
-      return <FaMotorcycle key={label} className={className} />;
+      return <FaMotorcycle key={iconKey} className={className} />;
     case "mouse":
-      return <FaMouse key={label} className={className} />;
+      return <FaMouse key={iconKey} className={className} />;
     case "package":
-      return <LuBox key={label} className={className} />;
+      return <LuBox key={iconKey} className={className} />;
     case "person":
-      return <BsPersonWalking key={label} className={className} />;
+      return <BsPersonWalking key={iconKey} className={className} />;
     case "rabbit":
-      return <GiRabbit key={label} className={className} />;
+      return <GiRabbit key={iconKey} className={className} />;
     case "raccoon":
-      return <GiRaccoonHead key={label} className={className} />;
+      return <GiRaccoonHead key={iconKey} className={className} />;
     case "robot_lawnmower":
-      return <FaHockeyPuck key={label} className={className} />;
+      return <FaHockeyPuck key={iconKey} className={className} />;
     case "sports_ball":
-      return <FaFootballBall key={label} className={className} />;
+      return <FaFootballBall key={iconKey} className={className} />;
     case "skunk":
-      return <GiSquirrel key={label} className={className} />;
+      return <GiSquirrel key={iconKey} className={className} />;
     case "squirrel":
-      return <LuIcons.LuSquirrel key={label} className={className} />;
+      return <LuIcons.LuSquirrel key={iconKey} className={className} />;
     case "umbrella":
-      return <FaUmbrella key={label} className={className} />;
+      return <FaUmbrella key={iconKey} className={className} />;
     case "waste_bin":
-      return <FaRegTrashAlt key={label} className={className} />;
+      return <FaRegTrashAlt key={iconKey} className={className} />;
     // audio
     case "crying":
     case "laughter":
     case "scream":
     case "speech":
     case "yell":
-      return <MdRecordVoiceOver key={label} className={className} />;
+      return <MdRecordVoiceOver key={iconKey} className={className} />;
     case "fire_alarm":
-      return <FaFire key={label} className={className} />;
+      return <FaFire key={iconKey} className={className} />;
     // sub labels
     case "amazon":
-      return <FaAmazon key={label} className={className} />;
+      return <FaAmazon key={iconKey} className={className} />;
     case "an_post":
     case "canada_post":
     case "dpd":
@@ -148,20 +151,20 @@ export function getIconForLabel(
     case "postnord":
     case "purolator":
     case "royal_mail":
-      return <GiPostStamp key={label} className={className} />;
+      return <GiPostStamp key={iconKey} className={className} />;
     case "dhl":
-      return <FaDhl key={label} className={className} />;
+      return <FaDhl key={iconKey} className={className} />;
     case "fedex":
-      return <FaFedex key={label} className={className} />;
+      return <FaFedex key={iconKey} className={className} />;
     case "ups":
-      return <FaUps key={label} className={className} />;
+      return <FaUps key={iconKey} className={className} />;
     case "usps":
-      return <FaUsps key={label} className={className} />;
+      return <FaUsps key={iconKey} className={className} />;
     default:
       if (type === "audio") {
-        return <GiSoundWaves key={label} className={className} />;
+        return <GiSoundWaves key={iconKey} className={className} />;
       }
-      return <LuLassoSelect key={label} className={className} />;
+      return <LuLassoSelect key={iconKey} className={className} />;
   }
 }
 
@@ -169,11 +172,12 @@ function getVerifiedIcon(
   label: string,
   className?: string,
   type: EventType = "object",
+  key?: string,
 ) {
   const simpleLabel = label.substring(0, label.lastIndexOf("-"));
 
   return (
-    <div key={label} className="relative flex items-center">
+    <div key={key} className="relative flex items-center">
       {getIconForLabel(simpleLabel, type, className)}
       <FaCheckCircle className="absolute -bottom-0.5 -right-0.5 size-2" />
     </div>
@@ -184,11 +188,12 @@ function getRecognizedPlateIcon(
   label: string,
   className?: string,
   type: EventType = "object",
+  key?: string,
 ) {
   const simpleLabel = label.substring(0, label.lastIndexOf("-"));
 
   return (
-    <div key={label} className="relative inline-flex items-center">
+    <div key={key} className="relative inline-flex items-center">
       {getIconForLabel(simpleLabel, type, className)}
       <LuScanBarcode className="absolute -bottom-0.5 -right-0.5 size-2" />
     </div>

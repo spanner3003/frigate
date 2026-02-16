@@ -33,13 +33,14 @@ import axios from "axios";
 import { toast } from "sonner";
 import useKeyboardListener from "@/hooks/use-keyboard-listener";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
-import { capitalizeFirstLetter } from "@/utils/stringUtil";
 import { Button, buttonVariants } from "../ui/button";
 import { Trans, useTranslation } from "react-i18next";
 import { cn } from "@/lib/utils";
 import { LuCircle } from "react-icons/lu";
 import { MdAutoAwesome } from "react-icons/md";
 import { GenAISummaryDialog } from "../overlay/chip/GenAISummaryChip";
+import { getTranslatedLabel } from "@/utils/i18n";
+import { formatList } from "@/utils/stringUtil";
 
 type ReviewCardProps = {
   event: ReviewSegment;
@@ -123,6 +124,12 @@ export default function ReviewCard({
     }
   }, [bypassDialogRef, onDelete]);
 
+  const getEventType = (text: string) => {
+    if (event.data.sub_labels?.includes(text)) return "manual";
+    if (event.data.audio.includes(text)) return "audio";
+    return "object";
+  };
+
   const content = (
     <div
       className="relative flex w-full cursor-pointer flex-col gap-1.5"
@@ -197,20 +204,20 @@ export default function ReviewCard({
             </div>
           </TooltipTrigger>
           <TooltipContent className="smart-capitalize">
-            {[
-              ...new Set([
-                ...(event.data.objects || []),
-                ...(event.data.sub_labels || []),
-                ...(event.data.audio || []),
-              ]),
-            ]
-              .filter(
-                (item) => item !== undefined && !item.includes("-verified"),
-              )
-              .map((text) => capitalizeFirstLetter(text))
-              .sort()
-              .join(", ")
-              .replaceAll("-verified", "")}
+            {formatList(
+              [
+                ...new Set([
+                  ...(event.data.objects || []),
+                  ...(event.data.sub_labels || []),
+                  ...(event.data.audio || []),
+                ]),
+              ]
+                .filter(
+                  (item) => item !== undefined && !item.includes("-verified"),
+                )
+                .map((text) => getTranslatedLabel(text, getEventType(text)))
+                .sort(),
+            )}
           </TooltipContent>
         </Tooltip>
         <TimeAgo
