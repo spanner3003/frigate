@@ -376,11 +376,15 @@ class TrackedObject:
         )
         return (thumb_update, significant_change, path_update, autotracker_update)
 
-    def to_dict(
-        self,
-        attribute_model_names: list[str] | None = None,
-    ) -> dict[str, Any]:
-        event = {
+    def to_dict(self) -> dict[str, Any]:
+        # Tracking internals excluded from output (centroid, estimate, estimate_velocity)
+        _EXCLUDED_OBJ_DATA_KEYS = {
+            "centroid",
+            "estimate",
+            "estimate_velocity",
+        }
+
+        event: dict[str, Any] = {
             "id": self.obj_data["id"],
             "camera": self.camera_config.name,
             "frame_time": self.obj_data["frame_time"],
@@ -414,11 +418,11 @@ class TrackedObject:
             "path_data": self.path_data.copy(),
             "recognized_license_plate": self.obj_data.get("recognized_license_plate"),
         }
-        if attribute_model_names is not None:
-            for name in attribute_model_names:
-                value = self.obj_data.get(name)
-                if value is not None:
-                    event[name] = value
+
+        # Add any other obj_data keys (e.g. custom attribute fields) not yet included
+        for key, value in self.obj_data.items():
+            if key not in _EXCLUDED_OBJ_DATA_KEYS and key not in event:
+                event[key] = value
 
         return event
 
