@@ -31,7 +31,6 @@ from frigate.util.file import get_event_thumbnail_bytes
 from .genai_embedding import GenAIEmbedding
 from .onnx.jina_v1_embedding import JinaV1ImageEmbedding, JinaV1TextEmbedding
 from .onnx.jina_v2_embedding import JinaV2Embedding
-from .onnx.jina_v2_embedding_ax import AXJinaV2Embedding
 
 logger = logging.getLogger(__name__)
 
@@ -141,19 +140,8 @@ class Embeddings:
             self.vision_embedding = lambda input_data: self.embedding(
                 input_data, embedding_type="vision"
             )
-        elif self.config.semantic_search.model == SemanticSearchModelEnum.ax_jinav2:
-            # AXJinaV2Embedding instance for both text and vision
-            self.embedding = AXJinaV2Embedding(
-                model_size=self.config.semantic_search.model_size,
-                requestor=self.requestor,
-            )
-            self.text_embedding = lambda input_data: self.embedding(
-                input_data, embedding_type="text"
-            )
-            self.vision_embedding = lambda input_data: self.embedding(
-                input_data, embedding_type="vision"
-            )
-        else:  # Default to jinav1
+        else:
+            # Default to jinav1
             self.text_embedding = JinaV1TextEmbedding(
                 model_size=config.semantic_search.model_size,
                 requestor=self.requestor,
