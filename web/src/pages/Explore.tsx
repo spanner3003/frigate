@@ -419,7 +419,7 @@ export default function Explore() {
         !(isAxJinaV2 ? effectiveTextModelState : textModelState) ||
         !(isAxJinaV2 ? effectiveTextTokenizerState : textTokenizerState) ||
         !(isAxJinaV2 ? effectiveVisionModelState : visionModelState) ||
-        (!isAxJinaV2 && !visionFeatureExtractorState)))
+        (!isAxJinaV2 && !visionFeatureExtractorState) ||
         (!isGenaiEmbeddings &&
           (!textModelState ||
             !textTokenizerState ||
