@@ -119,7 +119,7 @@ services:
     volumes:
       - ./config:/config
       - ./storage:/media/frigate
-      - type: tmpfs # Optional: 1GB of memory, reduces SSD/SD Card wear
+      - type: tmpfs # 1GB In-memory filesystem for recording segment storage
         target: /tmp/cache
         tmpfs:
           size: 1000000000
@@ -240,7 +240,10 @@ cameras:
             - detect
     motion:
       mask:
-        - 0,461,3,0,1919,0,1919,843,1699,492,1344,458,1346,336,973,317,869,375,866,432
+        motion_area:
+          friendly_name: "Motion mask"
+          enabled: true
+          coordinates: "0,461,3,0,1919,0,1919,843,1699,492,1344,458,1346,336,973,317,869,375,866,432"
 ```
 
 ### Step 6: Enable recordings

@@ -29,12 +29,12 @@ cameras:
 
 When running Frigate through the HA Add-on, the Frigate `/config` directory is mapped to `/addon_configs/<addon_directory>` in the host, where `<addon_directory>` is specific to the variant of the Frigate Add-on you are running.
 
-| Add-on Variant             | Configuration directory                      |
-| -------------------------- | -------------------------------------------- |
-| Frigate                    | `/addon_configs/ccab4aaf_frigate`            |
-| Frigate (Full Access)      | `/addon_configs/ccab4aaf_frigate-fa`         |
-| Frigate Beta               | `/addon_configs/ccab4aaf_frigate-beta`       |
-| Frigate Beta (Full Access) | `/addon_configs/ccab4aaf_frigate-fa-beta`    |
+| Add-on Variant             | Configuration directory                   |
+| -------------------------- | ----------------------------------------- |
+| Frigate                    | `/addon_configs/ccab4aaf_frigate`         |
+| Frigate (Full Access)      | `/addon_configs/ccab4aaf_frigate-fa`      |
+| Frigate Beta               | `/addon_configs/ccab4aaf_frigate-beta`    |
+| Frigate Beta (Full Access) | `/addon_configs/ccab4aaf_frigate-fa-beta` |
 
 **Whenever you see `/config` in the documentation, it refers to this directory.**
 
@@ -109,15 +109,16 @@ detectors:
 
 record:
   enabled: True
-  retain:
+  motion:
     days: 7
-    mode: motion
   alerts:
     retain:
       days: 30
+      mode: motion
   detections:
     retain:
       days: 30
+      mode: motion
 
 snapshots:
   enabled: True
@@ -137,7 +138,10 @@ cameras:
             - detect
     motion:
       mask:
-        - 0.000,0.427,0.002,0.000,0.999,0.000,0.999,0.781,0.885,0.456,0.700,0.424,0.701,0.311,0.507,0.294,0.453,0.347,0.451,0.400
+        timestamp:
+          friendly_name: "Camera timestamp"
+          enabled: true
+          coordinates: "0.000,0.427,0.002,0.000,0.999,0.000,0.999,0.781,0.885,0.456,0.700,0.424,0.701,0.311,0.507,0.294,0.453,0.347,0.451,0.400"
 ```
 
 ### Standalone Intel Mini PC with USB Coral
@@ -165,15 +169,16 @@ detectors:
 
 record:
   enabled: True
-  retain:
+  motion:
     days: 7
-    mode: motion
   alerts:
     retain:
       days: 30
+      mode: motion
   detections:
     retain:
       days: 30
+      mode: motion
 
 snapshots:
   enabled: True
@@ -193,7 +198,10 @@ cameras:
             - detect
     motion:
       mask:
-        - 0.000,0.427,0.002,0.000,0.999,0.000,0.999,0.781,0.885,0.456,0.700,0.424,0.701,0.311,0.507,0.294,0.453,0.347,0.451,0.400
+        timestamp:
+          friendly_name: "Camera timestamp"
+          enabled: true
+          coordinates: "0.000,0.427,0.002,0.000,0.999,0.000,0.999,0.781,0.885,0.456,0.700,0.424,0.701,0.311,0.507,0.294,0.453,0.347,0.451,0.400"
 ```
 
 ### Home Assistant integrated Intel Mini PC with OpenVino
@@ -231,15 +239,16 @@ model:
 
 record:
   enabled: True
-  retain:
+  motion:
     days: 7
-    mode: motion
   alerts:
     retain:
       days: 30
+      mode: motion
   detections:
     retain:
       days: 30
+      mode: motion
 
 snapshots:
   enabled: True
@@ -259,5 +268,8 @@ cameras:
             - detect
     motion:
       mask:
-        - 0.000,0.427,0.002,0.000,0.999,0.000,0.999,0.781,0.885,0.456,0.700,0.424,0.701,0.311,0.507,0.294,0.453,0.347,0.451,0.400
+        timestamp:
+          friendly_name: "Camera timestamp"
+          enabled: true
+          coordinates: "0.000,0.427,0.002,0.000,0.999,0.000,0.999,0.781,0.885,0.456,0.700,0.424,0.701,0.311,0.507,0.294,0.453,0.347,0.451,0.400"
 ```

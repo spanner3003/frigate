@@ -23,6 +23,7 @@ import { toast } from "sonner";
 import useSWR from "swr";
 import useSWRInfinite from "swr/infinite";
 import { useDocDomain } from "@/hooks/use-doc-domain";
+import { JINA_EMBEDDING_MODELS } from "@/lib/const";
 
 const API_LIMIT = 25;
 
@@ -294,7 +295,12 @@ export default function Explore() {
   const modelSize = config?.semantic_search.model_size || "small";
   const isAxJinaV2 = modelVersion === "ax_jinav2";
 
-  // Text model state
+  // GenAI providers have no local models to download
+  const isGenaiEmbeddings =
+    typeof modelVersion === "string" &&
+    !(JINA_EMBEDDING_MODELS as readonly string[]).includes(modelVersion);
+
+  // Text model state (skipped for GenAI - no local models)
   const { payload: textModelState } = useModelState(
     isAxJinaV2
       ? "AXERA-TECH/jina-clip-v2-text_encoder.axmodel"
@@ -371,6 +377,10 @@ export default function Explore() {
         effectiveVisionModelState === "downloaded"
       );
     }
+    if (isGenaiEmbeddings) {
+      return true;
+    }
+
     return (
       textModelState === "downloaded" &&
       textTokenizerState === "downloaded" &&
@@ -382,6 +392,7 @@ export default function Explore() {
     effectiveTextModelState,
     effectiveTextTokenizerState,
     effectiveVisionModelState,
+    isGenaiEmbeddings,
     textModelState,
     textTokenizerState,
     visionModelState,
@@ -409,6 +420,11 @@ export default function Explore() {
         !(isAxJinaV2 ? effectiveTextTokenizerState : textTokenizerState) ||
         !(isAxJinaV2 ? effectiveVisionModelState : visionModelState) ||
         (!isAxJinaV2 && !visionFeatureExtractorState)))
+        (!isGenaiEmbeddings &&
+          (!textModelState ||
+            !textTokenizerState ||
+            !visionModelState ||
+            !visionFeatureExtractorState))))
   ) {
     return (
       <ActivityIndicator className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2" />

@@ -6,7 +6,8 @@
       "title": "Frigate repornește",
       "content": "Această pagină se va reâncărca automat în {{countdown}} secunde.",
       "button": "Forțează acum reîncărcarea"
-    }
+    },
+    "description": "Acest lucru va opri temporar Frigate în timpul repornirii."
   },
   "explore": {
     "plus": {
@@ -94,6 +95,10 @@
     "fromTimeline": {
       "saveExport": "Salvează exportul",
       "previewExport": "Previzualizează exportul"
+    },
+    "case": {
+      "label": "Caz",
+      "placeholder": "Selectează caz"
     }
   },
   "streaming": {

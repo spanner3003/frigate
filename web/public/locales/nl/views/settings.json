@@ -7,12 +7,15 @@
     "classification": "Classificatie-instellingen - Frigate",
     "masksAndZones": "Masker- en zone-editor - Frigate",
     "object": "Foutopsporing Frigate",
-    "general": "Gebruikersinterface-instellingen - Frigate",
+    "general": "Profielinstellingen - Frigate",
     "frigatePlus": "Frigate+ Instellingen - Frigate",
     "notifications": "Meldingsinstellingen - Frigate",
     "enrichments": "Verrijkingsinstellingen - Frigate",
     "cameraManagement": "Camera's beheren - Frigate",
-    "cameraReview": "Camera Review Instellingen - Frigate"
+    "cameraReview": "Camera Review Instellingen - Frigate",
+    "globalConfig": "Globale configuratie - Frigate",
+    "cameraConfig": "Camera-instellingen - Frigate",
+    "maintenance": "Onderhoud - Frigate"
   },
   "menu": {
     "ui": "Gebruikersinterface",
@@ -28,7 +31,25 @@
     "triggers": "Triggers",
     "roles": "Rollen",
     "cameraManagement": "Beheer",
-    "cameraReview": "Beoordeel"
+    "cameraReview": "Beoordeel",
+    "general": "Algemeen",
+    "globalConfig": "Globale configuratie",
+    "system": "Systeem",
+    "integrations": "Integraties",
+    "profileSettings": "Profielinstellingen",
+    "globalDetect": "Objectdetectie",
+    "globalRecording": "Opname",
+    "globalSnapshots": "Snapshots",
+    "globalFfmpeg": "FFmpeg",
+    "globalMotion": "Bewegingsdetectie",
+    "globalObjects": "Objecten",
+    "globalReview": "Beoordelen",
+    "globalAudioEvents": "Geluidsgebeurtenissen",
+    "globalLivePlayback": "Live afspelen",
+    "globalTimestampStyle": "Tijdstempelstijl",
+    "systemDatabase": "Database",
+    "systemTls": "TLS",
+    "systemAuthentication": "Authenticatie"
   },
   "dialog": {
     "unsavedChanges": {
@@ -287,6 +308,11 @@
         },
         "reset": {
           "label": "Alle punten wissen"
+        },
+        "type": {
+          "zone": "zone",
+          "motion_mask": "bewegingsmasker",
+          "object_mask": "objectmasker"
         }
       },
       "speed": {
@@ -546,7 +572,7 @@
           "hide": "Wachtwoord verbergen",
           "requirements": {
             "title": "Wachtwoordvereisten:",
-            "length": "Minimaal 8 tekens",
+            "length": "Minimaal 12 tekens",
             "uppercase": "Minimaal één hoofdletter",
             "digit": "Minimaal één cijfer",
             "special": "Minimaal één speciaal teken (!@#$%^&*(),.?\":{}|<>)"

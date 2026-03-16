@@ -34,7 +34,6 @@ import { useSearchEffect } from "@/hooks/use-overlay-state";
 import { useTranslation } from "react-i18next";
 
 import { useDocDomain } from "@/hooks/use-doc-domain";
-import { getTranslatedLabel } from "@/utils/i18n";
 import { cn } from "@/lib/utils";
 
 type MasksAndZoneViewProps = {
@@ -54,6 +53,9 @@ export default function MasksAndZonesView({
   const [allPolygons, setAllPolygons] = useState<Polygon[]>([]);
   const [editingPolygons, setEditingPolygons] = useState<Polygon[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [loadingPolygonIndex, setLoadingPolygonIndex] = useState<
+    number | undefined
+  >(undefined);
   const [activePolygonIndex, setActivePolygonIndex] = useState<
     number | undefined
   >(undefined);
@@ -62,6 +64,9 @@ export default function MasksAndZonesView({
   );
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [editPane, setEditPane] = useState<PolygonType | undefined>(undefined);
+  const editPaneRef = useRef(editPane);
+  editPaneRef.current = editPane;
+  const prevScaledRef = useRef<{ w: number; h: number } | null>(null);
   const [activeLine, setActiveLine] = useState<number | undefined>();
   const [snapPoints, setSnapPoints] = useState(false);
 
@@ -170,6 +175,7 @@ export default function MasksAndZonesView({
         objects: [],
         camera: selectedCamera,
         color: polygonColor,
+        enabled: true,
       },
     ]);
   };
@@ -231,6 +237,8 @@ export default function MasksAndZonesView({
           camera: cameraConfig.name,
           name,
           friendly_name: zoneData.friendly_name,
+          enabled: zoneData.enabled,
+          enabled_in_config: zoneData.enabled_in_config,
           objects: zoneData.objects,
           points: interpolatePoints(
             parseCoordinates(zoneData.coordinates),
@@ -250,102 +258,93 @@ export default function MasksAndZonesView({
       let globalObjectMasks: Polygon[] = [];
       let objectMasks: Polygon[] = [];
 
-      // this can be an array or a string
-      motionMasks = (
-        Array.isArray(cameraConfig.motion.mask)
-          ? cameraConfig.motion.mask
-          : cameraConfig.motion.mask
-            ? [cameraConfig.motion.mask]
-            : []
-      ).map((maskData, index) => ({
-        type: "motion_mask" as PolygonType,
-        typeIndex: index,
-        camera: cameraConfig.name,
-        name: t("masksAndZones.motionMaskLabel", {
-          number: index + 1,
+      // Motion masks are a dict with mask_id as key
+      motionMasks = Object.entries(cameraConfig.motion.mask || {}).map(
+        ([maskId, maskData], index) => ({
+          type: "motion_mask" as PolygonType,
+          typeIndex: index,
+          camera: cameraConfig.name,
+          name: maskId,
+          friendly_name: maskData.friendly_name,
+          enabled: maskData.enabled,
+          enabled_in_config: maskData.enabled_in_config,
+          objects: [],
+          points: interpolatePoints(
+            parseCoordinates(maskData.coordinates),
+            1,
+            1,
+            scaledWidth,
+            scaledHeight,
+          ),
+          distances: [],
+          isFinished: true,
+          color: [0, 0, 255],
         }),
-        objects: [],
-        points: interpolatePoints(
-          parseCoordinates(maskData),
-          1,
-          1,
-          scaledWidth,
-          scaledHeight,
-        ),
-        distances: [],
-        isFinished: true,
-        color: [0, 0, 255],
-      }));
+      );
 
-      const globalObjectMasksArray = Array.isArray(cameraConfig.objects.mask)
-        ? cameraConfig.objects.mask
-        : cameraConfig.objects.mask
-          ? [cameraConfig.objects.mask]
-          : [];
-
-      globalObjectMasks = globalObjectMasksArray.map((maskData, index) => ({
-        type: "object_mask" as PolygonType,
-        typeIndex: index,
-        camera: cameraConfig.name,
-        name: t("masksAndZones.objectMaskLabel", {
-          number: index + 1,
-          label: t("masksAndZones.zones.allObjects"),
+      // Global object masks are a dict with mask_id as key
+      globalObjectMasks = Object.entries(cameraConfig.objects.mask || {}).map(
+        ([maskId, maskData], index) => ({
+          type: "object_mask" as PolygonType,
+          typeIndex: index,
+          camera: cameraConfig.name,
+          name: maskId,
+          friendly_name: maskData.friendly_name,
+          enabled: maskData.enabled,
+          enabled_in_config: maskData.enabled_in_config,
+          objects: [],
+          points: interpolatePoints(
+            parseCoordinates(maskData.coordinates),
+            1,
+            1,
+            scaledWidth,
+            scaledHeight,
+          ),
+          distances: [],
+          isFinished: true,
+          color: [128, 128, 128],
         }),
-        objects: [],
-        points: interpolatePoints(
-          parseCoordinates(maskData),
-          1,
-          1,
-          scaledWidth,
-          scaledHeight,
-        ),
-        distances: [],
-        isFinished: true,
-        color: [128, 128, 128],
-      }));
+      );
 
-      const globalObjectMasksCount = globalObjectMasks.length;
-      let index = 0;
+      let objectMaskIndex = globalObjectMasks.length;
 
       objectMasks = Object.entries(cameraConfig.objects.filters)
-        .filter(([, { mask }]) => mask || Array.isArray(mask))
-        .flatMap(([objectName, { mask }]): Polygon[] => {
-          const maskArray = Array.isArray(mask) ? mask : mask ? [mask] : [];
-          return maskArray.flatMap((maskItem, subIndex) => {
-            const maskItemString = maskItem;
-            const newMask = {
-              type: "object_mask" as PolygonType,
-              typeIndex: subIndex,
-              camera: cameraConfig.name,
-              name: t("masksAndZones.objectMaskLabel", {
-                number: globalObjectMasksCount + index + 1,
-                label: getTranslatedLabel(objectName),
-              }),
-              objects: [objectName],
-              points: interpolatePoints(
-                parseCoordinates(maskItem),
-                1,
-                1,
-                scaledWidth,
-                scaledHeight,
-              ),
-              distances: [],
-              isFinished: true,
-              color: [128, 128, 128],
-            };
-            index++;
+        .filter(
+          ([, filterConfig]) =>
+            filterConfig.mask && Object.keys(filterConfig.mask).length > 0,
+        )
+        .flatMap(([objectName, filterConfig]): Polygon[] => {
+          return Object.entries(filterConfig.mask || {}).flatMap(
+            ([maskId, maskData]) => {
+              // Skip if this mask is a global mask (prefixed with "global_")
+              if (maskId.startsWith("global_")) {
+                return [];
+              }
 
-            if (
-              globalObjectMasksArray.some(
-                (globalMask) => globalMask === maskItemString,
-              )
-            ) {
-              index--;
-              return [];
-            } else {
+              const newMask = {
+                type: "object_mask" as PolygonType,
+                typeIndex: objectMaskIndex,
+                camera: cameraConfig.name,
+                name: maskId,
+                friendly_name: maskData.friendly_name,
+                enabled: maskData.enabled,
+                enabled_in_config: maskData.enabled_in_config,
+                objects: [objectName],
+                points: interpolatePoints(
+                  parseCoordinates(maskData.coordinates),
+                  1,
+                  1,
+                  scaledWidth,
+                  scaledHeight,
+                ),
+                distances: [],
+                isFinished: true,
+                color: [128, 128, 128],
+              };
+              objectMaskIndex++;
               return [newMask];
-            }
-          });
+            },
+          );
         });
 
       setAllPolygons([
@@ -354,12 +353,36 @@ export default function MasksAndZonesView({
         ...globalObjectMasks,
         ...objectMasks,
       ]);
-      setEditingPolygons([
-        ...zones,
-        ...motionMasks,
-        ...globalObjectMasks,
-        ...objectMasks,
-      ]);
+      // Don't overwrite editingPolygons during editing – layout shifts
+      // from switching to the edit pane can trigger a resize which
+      // recalculates scaledWidth/scaledHeight and would discard the
+      // newly-added polygon. Instead, rescale existing points
+      // proportionally.
+      if (editPaneRef.current === undefined) {
+        setEditingPolygons([
+          ...zones,
+          ...motionMasks,
+          ...globalObjectMasks,
+          ...objectMasks,
+        ]);
+      } else if (
+        prevScaledRef.current &&
+        (prevScaledRef.current.w !== scaledWidth ||
+          prevScaledRef.current.h !== scaledHeight)
+      ) {
+        const prevW = prevScaledRef.current.w;
+        const prevH = prevScaledRef.current.h;
+        setEditingPolygons((prev) =>
+          prev.map((poly) => ({
+            ...poly,
+            points: poly.points.map(([x, y]) => [
+              (x / prevW) * scaledWidth,
+              (y / prevH) * scaledHeight,
+            ]),
+          })),
+        );
+      }
+      prevScaledRef.current = { w: scaledWidth, h: scaledHeight };
     }
     // we know that these deps are correct
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -435,7 +458,7 @@ export default function MasksAndZonesView({
       {cameraConfig && editingPolygons && (
         <div className="flex size-full flex-col md:flex-row">
           <Toaster position="top-center" closeButton={true} />
-          <div className="scrollbar-container order-last mb-2 mt-2 flex h-full w-full flex-col overflow-y-auto rounded-lg border-[1px] border-secondary-foreground bg-background_alt p-2 md:order-none md:mr-3 md:mt-0 md:w-3/12">
+          <div className="scrollbar-container order-last mb-2 mt-2 flex h-full w-full flex-col overflow-y-auto rounded-lg border-[1px] border-secondary-foreground bg-background_alt p-2 md:order-none md:mr-3 md:mt-0 md:w-3/12 md:min-w-0 md:shrink-0">
             {editPane == "zone" && (
               <ZoneEditPane
                 polygons={editingPolygons}
@@ -548,6 +571,10 @@ export default function MasksAndZonesView({
                             setActivePolygonIndex={setActivePolygonIndex}
                             setEditPane={setEditPane}
                             handleCopyCoordinates={handleCopyCoordinates}
+                            isLoading={isLoading}
+                            setIsLoading={setIsLoading}
+                            loadingPolygonIndex={loadingPolygonIndex}
+                            setLoadingPolygonIndex={setLoadingPolygonIndex}
                           />
                         ))}
                     </div>
@@ -618,6 +645,10 @@ export default function MasksAndZonesView({
                             setActivePolygonIndex={setActivePolygonIndex}
                             setEditPane={setEditPane}
                             handleCopyCoordinates={handleCopyCoordinates}
+                            isLoading={isLoading}
+                            setIsLoading={setIsLoading}
+                            loadingPolygonIndex={loadingPolygonIndex}
+                            setLoadingPolygonIndex={setLoadingPolygonIndex}
                           />
                         ))}
                     </div>
@@ -688,6 +719,10 @@ export default function MasksAndZonesView({
                             setActivePolygonIndex={setActivePolygonIndex}
                             setEditPane={setEditPane}
                             handleCopyCoordinates={handleCopyCoordinates}
+                            isLoading={isLoading}
+                            setIsLoading={setIsLoading}
+                            loadingPolygonIndex={loadingPolygonIndex}
+                            setLoadingPolygonIndex={setLoadingPolygonIndex}
                           />
                         ))}
                     </div>
@@ -699,7 +734,7 @@ export default function MasksAndZonesView({
           <div
             ref={containerRef}
             className={cn(
-              "flex max-h-[50%] md:h-dvh md:max-h-full md:w-7/12 md:grow",
+              "flex max-h-[50%] min-w-0 md:h-dvh md:max-h-full md:w-7/12 md:grow",
               isDesktop && "md:mr-3",
             )}
           >

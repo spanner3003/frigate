@@ -120,7 +120,7 @@ Message published for each changed tracked object. The first message is publishe
 
 ### `frigate/tracked_object_update`
 
-Message published for updates to tracked object metadata, for example:
+Message published for updates to tracked object metadata. All messages include an `id` field which is the tracked object's event ID, and can be used to look up the event via the API or match it to items in the UI.
 
 #### Generative AI Description Update
 
@@ -134,12 +134,14 @@ Message published for updates to tracked object metadata, for example:
 
 #### Face Recognition Update
 
+Published after each recognition attempt, regardless of whether the score meets `recognition_threshold`. See the [Face Recognition](/configuration/face_recognition) documentation for details on how scoring works.
+
 ```json
 {
   "type": "face",
   "id": "1607123955.475377-mxklsc",
-  "name": "John",
-  "score": 0.95,
+  "name": "John", // best matching person, or null if no match
+  "score": 0.95, // running weighted average across all recognition attempts
   "camera": "front_door_cam",
   "timestamp": 1607123958.748393
 }
@@ -147,15 +149,18 @@ Message published for updates to tracked object metadata, for example:
 
 #### License Plate Recognition Update
 
+Published when a license plate is recognized on a car object. See the [License Plate Recognition](/configuration/license_plate_recognition) documentation for details.
+
 ```json
 {
   "type": "lpr",
   "id": "1607123955.475377-mxklsc",
-  "name": "John's Car",
+  "name": "John's Car", // known name for the plate, or null
   "plate": "123ABC",
   "score": 0.95,
   "camera": "driveway_cam",
-  "timestamp": 1607123958.748393
+  "timestamp": 1607123958.748393,
+  "plate_box": [917, 487, 1029, 529] // box coordinates of the detected license plate in the frame
 }
 ```
 
@@ -424,6 +429,30 @@ Topic to adjust motion contour area for a camera. Expected value is an integer.
 ### `frigate/<camera_name>/motion_contour_area/state`
 
 Topic with current motion contour area for a camera. Published value is an integer.
+
+### `frigate/<camera_name>/motion_mask/<mask_name>/set`
+
+Topic to turn a specific motion mask for a camera on and off. Expected values are `ON` and `OFF`.
+
+### `frigate/<camera_name>/motion_mask/<mask_name>/state`
+
+Topic with current state of a specific motion mask for a camera. Published values are `ON` and `OFF`.
+
+### `frigate/<camera_name>/object_mask/<mask_name>/set`
+
+Topic to turn a specific object mask for a camera on and off. Expected values are `ON` and `OFF`.
+
+### `frigate/<camera_name>/object_mask/<mask_name>/state`
+
+Topic with current state of a specific object mask for a camera. Published values are `ON` and `OFF`.
+
+### `frigate/<camera_name>/zone/<zone_name>/set`
+
+Topic to turn a specific zone for a camera on and off. Expected values are `ON` and `OFF`.
+
+### `frigate/<camera_name>/zone/<zone_name>/state`
+
+Topic with current state of a specific zone for a camera. Published values are `ON` and `OFF`.
 
 ### `frigate/<camera_name>/review_status`
 

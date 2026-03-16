@@ -41,8 +41,8 @@ If the EQ13 is out of stock, the link below may take you to a suggested alternat
 | Name                                                                                                          | Capabilities                                                               | Notes                                               |
 | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | --------------------------------------------------- |
 | Beelink EQ13 (<a href="https://amzn.to/4jn2qVr" target="_blank" rel="nofollow noopener sponsored">Amazon</a>) | Can run object detection on several 1080p cameras with low-medium activity | Dual gigabit NICs for easy isolated camera network. |
-| Intel 1120p ([Amazon](https://www.amazon.com/Beelink-i3-1220P-Computer-Display-Gigabit/dp/B0DDCKT9YP)         | Can handle a large number of 1080p cameras with high activity              |                                                     |
-| Intel 125H ([Amazon](https://www.amazon.com/MINISFORUM-Pro-125H-Barebone-Computer-HDMI2-1/dp/B0FH21FSZM)      | Can handle a significant number of 1080p cameras with high activity        | Includes NPU for more efficient detection in 0.17+  |
+| Intel 1120p ([Amazon](https://www.amazon.com/Beelink-i3-1220P-Computer-Display-Gigabit/dp/B0DDCKT9YP))        | Can handle a large number of 1080p cameras with high activity              |                                                     |
+| Intel 125H ([Amazon](https://www.amazon.com/MINISFORUM-Pro-125H-Barebone-Computer-HDMI2-1/dp/B0FH21FSZM))     | Can handle a significant number of 1080p cameras with high activity        | Includes NPU for more efficient detection in 0.17+  |
 
 ## Detectors
 
@@ -86,7 +86,7 @@ Frigate supports multiple different detectors that work on different types of ha
 
 **Nvidia**
 
-- [TensortRT](#tensorrt---nvidia-gpu): TensorRT can run on Nvidia GPUs to provide efficient object detection.
+- [Nvidia GPU](#nvidia-gpus): Nvidia GPUs can provide efficient object detection.
   - [Supports majority of model architectures via ONNX](../../configuration/object_detectors#onnx-supported-models)
   - Runs well with any size models including large
 
@@ -176,7 +176,7 @@ Inference speeds vary greatly depending on the CPU or GPU used, some known examp
 | Intel Arc A380 | ~ 6 ms                     |                                                   | 320: ~ 10 ms 640: ~ 22 ms | 336: 20 ms 448: 27 ms  |                                    |
 | Intel Arc A750 | ~ 4 ms                     |                                                   | 320: ~ 8 ms               |                        |                                    |
 
-### TensorRT - Nvidia GPU
+### Nvidia GPUs
 
 Frigate is able to utilize an Nvidia GPU which supports the 12.x series of CUDA libraries.
 
@@ -186,8 +186,6 @@ Frigate is able to utilize an Nvidia GPU which supports the 12.x series of CUDA 
 
 Make sure your host system has the [nvidia-container-runtime](https://docs.docker.com/config/containers/resource_constraints/#access-an-nvidia-gpu) installed to pass through the GPU to the container and the host system has a compatible driver installed for your GPU.
 
-There are improved capabilities in newer GPU architectures that TensorRT can benefit from, such as INT8 operations and Tensor cores. The features compatible with your hardware will be optimized when the model is converted to a trt file. Currently the script provided for generating the model provides a switch to enable/disable FP16 operations. If you wish to use newer features such as INT8 optimization, more work is required.
-
 #### Compatibility References:
 
 [NVIDIA TensorRT Support Matrix](https://docs.nvidia.com/deeplearning/tensorrt-rtx/latest/getting-started/support-matrix.html)
@@ -196,19 +194,20 @@ There are improved capabilities in newer GPU architectures that TensorRT can ben
 
 [NVIDIA GPU Compute Capability](https://developer.nvidia.com/cuda-gpus)
 
-Inference speeds will vary greatly depending on the GPU and the model used.
+Inference is done with the `onnx` detector type. Speeds will vary greatly depending on the GPU and the model used.
 `tiny (t)` variants are faster than the equivalent non-tiny model, some known examples are below:
 
 ✅ - Accelerated with CUDA Graphs
 ❌ - Not accelerated with CUDA Graphs
 
-| Name      | ✅ YOLOv9 Inference Time              | ✅ RF-DETR Inference Time | ❌ YOLO-NAS Inference Time |
-| --------- | ------------------------------------- | ------------------------- | -------------------------- |
-| GTX 1070  | s-320: 16 ms                          |                           | 320: 14 ms                 |
-| RTX 3050  | t-320: 8 ms s-320: 10 ms s-640: 28 ms | Nano-320: ~ 12 ms         | 320: ~ 10 ms 640: ~ 16 ms  |
-| RTX 3070  | t-320: 6 ms s-320: 8 ms s-640: 25 ms  | Nano-320: ~ 9 ms          | 320: ~ 8 ms 640: ~ 14 ms   |
-| RTX A4000 |                                       |                           | 320: ~ 15 ms               |
-| Tesla P40 |                                       |                           | 320: ~ 105 ms              |
+| Name        | ✅ YOLOv9 Inference Time              | ✅ RF-DETR Inference Time | ❌ YOLO-NAS Inference Time |
+| ----------- | ------------------------------------- | ------------------------- | -------------------------- |
+| GTX 1070    | s-320: 16 ms                          |                           | 320: 14 ms                 |
+| RTX 3050    | t-320: 8 ms s-320: 10 ms s-640: 28 ms | Nano-320: ~ 12 ms         | 320: ~ 10 ms 640: ~ 16 ms  |
+| RTX 3070    | t-320: 6 ms s-320: 8 ms s-640: 25 ms  | Nano-320: ~ 9 ms          | 320: ~ 8 ms 640: ~ 14 ms   |
+| RTX 5060 Ti | t-320: 5 ms s-320: 7 ms s-640: 22 ms  | Nano-320: ~ 6 ms          |                            |
+| RTX A4000   |                                       |                           | 320: ~ 15 ms               |
+| Tesla P40   |                                       |                           | 320: ~ 105 ms              |
 
 ### Apple Silicon
 

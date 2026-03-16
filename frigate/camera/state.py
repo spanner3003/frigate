@@ -65,7 +65,7 @@ class CameraState:
         frame_copy = cv2.cvtColor(frame_copy, cv2.COLOR_YUV2BGR_I420)
         # draw on the frame
         if draw_options.get("mask"):
-            mask_overlay = np.where(self.camera_config.motion.mask == [0])
+            mask_overlay = np.where(self.camera_config.motion.rasterized_mask == [0])
             frame_copy[mask_overlay] = [0, 0, 0]
 
         if draw_options.get("bounding_boxes"):
@@ -197,6 +197,10 @@ class CameraState:
 
         if draw_options.get("zones"):
             for name, zone in self.camera_config.zones.items():
+                # skip disabled zones
+                if not zone.enabled:
+                    continue
+
                 thickness = (
                     8
                     if any(

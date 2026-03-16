@@ -6,7 +6,8 @@
       "content": "Sidan uppdateras om {{countdown}} sekunder.",
       "button": "Tvinga omladdning nu"
     },
-    "title": "Är du säker på att du vill starta om Frigate?"
+    "title": "Är du säker på att du vill starta om Frigate?",
+    "description": "Frigate stoppas tillfälligt under omstarten."
   },
   "explore": {
     "plus": {

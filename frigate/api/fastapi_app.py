@@ -16,12 +16,16 @@ from frigate.api import app as main_app
 from frigate.api import (
     auth,
     camera,
+    chat,
     classification,
+    debug_replay,
     event,
     export,
     media,
+    motion_search,
     notification,
     preview,
+    record,
     review,
 )
 from frigate.api.auth import get_jwt_secret, limiter, require_admin_by_default
@@ -30,7 +34,9 @@ from frigate.comms.event_metadata_updater import (
 )
 from frigate.config import FrigateConfig
 from frigate.config.camera.updater import CameraConfigUpdatePublisher
+from frigate.debug_replay import DebugReplayManager
 from frigate.embeddings import EmbeddingsContext
+from frigate.genai import GenAIClientManager
 from frigate.ptz.onvif import OnvifController
 from frigate.stats.emitter import StatsEmitter
 from frigate.storage import StorageMaintainer
@@ -62,6 +68,7 @@ def create_fastapi_app(
     stats_emitter: StatsEmitter,
     event_metadata_updater: EventMetadataPublisher,
     config_publisher: CameraConfigUpdatePublisher,
+    replay_manager: DebugReplayManager,
     enforce_default_admin: bool = True,
 ):
     logger.info("Starting FastAPI app")
@@ -120,6 +127,7 @@ def create_fastapi_app(
     # Order of include_router matters: https://fastapi.tiangolo.com/tutorial/path-params/#order-matters
     app.include_router(auth.router)
     app.include_router(camera.router)
+    app.include_router(chat.router)
     app.include_router(classification.router)
     app.include_router(review.router)
     app.include_router(main_app.router)
@@ -128,8 +136,12 @@ def create_fastapi_app(
     app.include_router(export.router)
     app.include_router(event.router)
     app.include_router(media.router)
+    app.include_router(motion_search.router)
+    app.include_router(record.router)
+    app.include_router(debug_replay.router)
     # App Properties
     app.frigate_config = frigate_config
+    app.genai_manager = GenAIClientManager(frigate_config)
     app.embeddings = embeddings
     app.detected_frames_processor = detected_frames_processor
     app.storage_maintainer = storage_maintainer
@@ -138,6 +150,7 @@ def create_fastapi_app(
     app.stats_emitter = stats_emitter
     app.event_metadata_updater = event_metadata_updater
     app.config_publisher = config_publisher
+    app.replay_manager = replay_manager
 
     if frigate_config.auth.enabled:
         secret = get_jwt_secret()
