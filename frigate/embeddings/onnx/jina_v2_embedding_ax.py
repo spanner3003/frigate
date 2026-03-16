@@ -18,7 +18,14 @@ from frigate.util.downloader import ModelDownloader
 from frigate.types import ModelStatusTypesEnum
 from frigate.const import MODEL_CACHE_DIR, UPDATE_MODEL_STATE
 
-import axengine as axe
+# Guarded import — axengine raises on init if AXCL runtime is absent.
+try:
+    import axengine as axe
+except ImportError as e:
+    raise ImportError(
+        "axengine is not available. Ensure the AXCL runtime libraries are "
+        "installed and a compatible device is present."
+    ) from e
 
 # disables the progress bar and download logging for downloading tokenizers and image processors
 disable_progress_bar()
