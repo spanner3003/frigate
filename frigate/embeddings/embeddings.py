@@ -31,7 +31,6 @@ from frigate.util.file import get_event_thumbnail_bytes
 from .genai_embedding import GenAIEmbedding
 from .onnx.jina_v1_embedding import JinaV1ImageEmbedding, JinaV1TextEmbedding
 from .onnx.jina_v2_embedding import JinaV2Embedding
-from .onnx.jina_v2_embedding_ax import AXJinaV2Embedding
 
 logger = logging.getLogger(__name__)
 
@@ -143,6 +142,8 @@ class Embeddings:
             )
         elif self.config.semantic_search.model == SemanticSearchModelEnum.ax_jinav2:
             # AXJinaV2Embedding instance for both text and vision
+            # Lazy import to avoid loading axengine on non-AX builds.
+            from .onnx.jina_v2_embedding_ax import AXJinaV2Embedding
             self.embedding = AXJinaV2Embedding(
                 model_size=self.config.semantic_search.model_size,
                 requestor=self.requestor,
