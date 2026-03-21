@@ -6,6 +6,7 @@ from typing import Literal
 from pydantic import ConfigDict, Field
 
 import axengine as axe
+from pydantic import ConfigDict
 
 from frigate.const import MODEL_CACHE_DIR
 from frigate.detectors.detection_api import DetectionApi
