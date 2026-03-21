@@ -144,6 +144,7 @@ class Embeddings:
             # AXJinaV2Embedding instance for both text and vision
             # Lazy import to avoid loading axengine on non-AX builds.
             from .onnx.jina_v2_embedding_ax import AXJinaV2Embedding
+
             self.embedding = AXJinaV2Embedding(
                 model_size=self.config.semantic_search.model_size,
                 requestor=self.requestor,

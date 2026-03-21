@@ -4,19 +4,17 @@ import io
 import logging
 import os
 import threading
-from typing import Any
 
 import numpy as np
 from PIL import Image
 from transformers import AutoTokenizer
 from transformers.utils.logging import disable_progress_bar, set_verbosity_error
 
-from frigate.const import MODEL_CACHE_DIR
-from frigate.embeddings.onnx.base_embedding import BaseEmbedding
 from frigate.comms.inter_process import InterProcessRequestor
-from frigate.util.downloader import ModelDownloader
-from frigate.types import ModelStatusTypesEnum
 from frigate.const import MODEL_CACHE_DIR, UPDATE_MODEL_STATE
+from frigate.embeddings.onnx.base_embedding import BaseEmbedding
+from frigate.types import ModelStatusTypesEnum
+from frigate.util.downloader import ModelDownloader
 
 # Guarded import — axengine raises on init if AXCL runtime is absent.
 try:
