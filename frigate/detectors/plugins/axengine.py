@@ -3,6 +3,7 @@ import os.path
 import re
 import urllib.request
 from typing import Literal
+from pydantic import ConfigDict, Field
 
 import axengine as axe
 from pydantic import ConfigDict
@@ -29,7 +30,7 @@ class AxengineDetectorConfig(BaseDetectorConfig):
     model_config = ConfigDict(
         title="AXEngine NPU",
     )
-
+    
     type: Literal[DETECTOR_KEY]
 
 
