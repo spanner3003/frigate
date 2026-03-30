@@ -1,6 +1,8 @@
 {
-  "documentTitle": "Live - Frigate",
-  "documentTitle.withCamera": "{{camera}} - Live - Frigate",
+  "documentTitle": {
+    "default": "Live - Frigate",
+    "withCamera": "{{camera}} - Live - Frigate"
+  },
   "lowBandwidthMode": "Low-bandwidth Mode",
   "twoWayTalk": {
     "enable": "Enable Two Way Talk",
@@ -15,6 +17,7 @@
       "clickMove": {
         "label": "Click in the frame to center the camera",
         "enable": "Enable click to move",
+        "enableWithZoom": "Enable click to move / drag to zoom",
         "disable": "Disable click to move"
       },
       "left": {

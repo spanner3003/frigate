@@ -16,6 +16,8 @@ mqtt:
   # Optional: Enable mqtt server (default: shown below)
   enabled: True
   # Required: host name
+  # NOTE: MQTT host can be specified with an environment variable or docker secrets that must begin with 'FRIGATE_'.
+  #       e.g. host: '{FRIGATE_MQTT_HOST}'
   host: mqtt.server.com
   # Optional: port (default: shown below)
   port: 1883
@@ -616,13 +618,12 @@ record:
       #       never stored, so setting the mode to "all" here won't bring them back.
       mode: motion
 
-# Optional: Configuration for the jpg snapshots written to the clips directory for each tracked object
+# Optional: Configuration for the snapshots written to the clips directory for each tracked object
+# Timestamp, bounding_box, crop and height settings are applied by default to API requests for snapshots.
 # NOTE: Can be overridden at the camera level
 snapshots:
-  # Optional: Enable writing jpg snapshot to /media/frigate/clips (default: shown below)
+  # Optional: Enable writing snapshot images to /media/frigate/clips (default: shown below)
   enabled: False
-  # Optional: save a clean copy of the snapshot image (default: shown below)
-  clean_copy: True
   # Optional: print a timestamp on the snapshots (default: shown below)
   timestamp: False
   # Optional: draw bounding box on the snapshots (default: shown below)
@@ -640,8 +641,8 @@ snapshots:
     # Optional: Per object retention days
     objects:
       person: 15
-  # Optional: quality of the encoded jpeg, 0-100 (default: shown below)
-  quality: 70
+  # Optional: quality of the encoded snapshot image, 0-100 (default: shown below)
+  quality: 60
 
 # Optional: Configuration for semantic search capability
 semantic_search:
@@ -950,6 +951,8 @@ cameras:
     onvif:
       # Required: host of the camera being connected to.
       # NOTE: HTTP is assumed by default; HTTPS is supported if you specify the scheme, ex: "https://0.0.0.0".
+      # NOTE: ONVIF host, user, and password can be specified with environment variables or docker secrets
+      #       that must begin with 'FRIGATE_'. e.g. host: '{FRIGATE_ONVIF_USERNAME}'
       host: 0.0.0.0
       # Optional: ONVIF port for device (default: shown below).
       port: 8000
@@ -963,6 +966,10 @@ cameras:
       # Optional: Ignores time synchronization mismatches between the camera and the server during authentication.
       # Using NTP on both ends is recommended and this should only be set to True in a "safe" environment due to the security risk it represents.
       ignore_time_mismatch: False
+      # Optional: ONVIF media profile to use for PTZ control, matched by token or name. (default: shown below)
+      # If not set, the first profile with valid PTZ configuration is selected automatically.
+      # Use this when your camera has multiple ONVIF profiles and you need to select a specific one.
+      profile: None
       # Optional: PTZ camera object autotracking. Keeps a moving object in
       # the center of the frame by automatically moving the PTZ camera.
       autotracking:

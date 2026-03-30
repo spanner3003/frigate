@@ -20,6 +20,7 @@ import { requiresRestartForFieldPath } from "@/utils/configUtil";
 import RestartRequiredIndicator from "@/components/indicators/RestartRequiredIndicator";
 import {
   buildTranslationPath,
+  resolveConfigTranslation,
   getFilterObjectLabel,
   hasOverrideAtPath,
   humanizeKey,
@@ -27,6 +28,7 @@ import {
 } from "../utils";
 import { normalizeOverridePath } from "../utils/overrides";
 import get from "lodash/get";
+import { ConfigFieldMessage } from "../../ConfigFieldMessage";
 import isEqual from "lodash/isEqual";
 import { SPLIT_ROW_CLASS_NAME } from "@/components/card/SettingsGroupCard";
 
@@ -219,20 +221,16 @@ export function FieldTemplate(props: FieldTemplateProps) {
   // Try to get translated label, falling back to schema title, then RJSF label
   let finalLabel = label;
   if (effectiveNamespace && translationPath) {
-    // Prefer camera-scoped translations when a section prefix is provided
-    const prefixedTranslationKey =
-      sectionI18nPrefix && !translationPath.startsWith(`${sectionI18nPrefix}.`)
-        ? `${sectionI18nPrefix}.${translationPath}.label`
-        : undefined;
-    const translationKey = `${translationPath}.label`;
-
-    if (
-      prefixedTranslationKey &&
-      i18n.exists(prefixedTranslationKey, { ns: effectiveNamespace })
-    ) {
-      finalLabel = t(prefixedTranslationKey, { ns: effectiveNamespace });
-    } else if (i18n.exists(translationKey, { ns: effectiveNamespace })) {
-      finalLabel = t(translationKey, { ns: effectiveNamespace });
+    const translatedLabel = resolveConfigTranslation(
+      i18n,
+      t,
+      translationPath,
+      "label",
+      sectionI18nPrefix,
+      effectiveNamespace,
+    );
+    if (translatedLabel) {
+      finalLabel = translatedLabel;
     } else if (schemaTitle) {
       finalLabel = schemaTitle;
     } else if (translatedFilterObjectLabel) {
@@ -330,18 +328,16 @@ export function FieldTemplate(props: FieldTemplateProps) {
   // Try to get translated description, falling back to schema description
   let finalDescription = description || "";
   if (effectiveNamespace && translationPath) {
-    const prefixedDescriptionKey =
-      sectionI18nPrefix && !translationPath.startsWith(`${sectionI18nPrefix}.`)
-        ? `${sectionI18nPrefix}.${translationPath}.description`
-        : undefined;
-    const descriptionKey = `${translationPath}.description`;
-    if (
-      prefixedDescriptionKey &&
-      i18n.exists(prefixedDescriptionKey, { ns: effectiveNamespace })
-    ) {
-      finalDescription = t(prefixedDescriptionKey, { ns: effectiveNamespace });
-    } else if (i18n.exists(descriptionKey, { ns: effectiveNamespace })) {
-      finalDescription = t(descriptionKey, { ns: effectiveNamespace });
+    const translatedDescription = resolveConfigTranslation(
+      i18n,
+      t,
+      translationPath,
+      "description",
+      sectionI18nPrefix,
+      effectiveNamespace,
+    );
+    if (translatedDescription) {
+      finalDescription = translatedDescription;
     } else if (schemaDescription) {
       finalDescription = schemaDescription;
     }
@@ -387,6 +383,46 @@ export function FieldTemplate(props: FieldTemplateProps) {
 
   const beforeContent = renderCustom(beforeSpec);
   const afterContent = renderCustom(afterSpec);
+
+  // Render conditional field messages from ui:messages
+  const fieldMessageSpecs = uiSchema?.["ui:messages"] as
+    | Array<{
+        key: string;
+        messageKey: string;
+        severity: string;
+        position?: string;
+      }>
+    | undefined;
+  const beforeMessages = fieldMessageSpecs?.filter(
+    (m) => (m.position ?? "before") === "before",
+  );
+  const afterMessages = fieldMessageSpecs?.filter(
+    (m) => m.position === "after",
+  );
+  const beforeMessagesContent =
+    beforeMessages && beforeMessages.length > 0 ? (
+      <div className="space-y-2">
+        {beforeMessages.map((m) => (
+          <ConfigFieldMessage
+            key={m.key}
+            messageKey={m.messageKey}
+            severity={m.severity}
+          />
+        ))}
+      </div>
+    ) : null;
+  const afterMessagesContent =
+    afterMessages && afterMessages.length > 0 ? (
+      <div className="space-y-2">
+        {afterMessages.map((m) => (
+          <ConfigFieldMessage
+            key={m.key}
+            messageKey={m.messageKey}
+            severity={m.severity}
+          />
+        ))}
+      </div>
+    ) : null;
   const WrapIfAdditionalTemplate = getTemplate(
     "WrapIfAdditionalTemplate",
     registry,
@@ -605,6 +641,7 @@ export function FieldTemplate(props: FieldTemplateProps) {
     >
       <div className="flex flex-col space-y-6">
         {beforeContent}
+        {beforeMessagesContent}
         <div className={cn("space-y-1")} data-field-id={translationPath}>
           {renderStandardLabel()}
           {renderFieldLayout()}
@@ -612,6 +649,7 @@ export function FieldTemplate(props: FieldTemplateProps) {
           {errors}
           {help}
         </div>
+        {afterMessagesContent}
         {afterContent}
       </div>
     </WrapIfAdditionalTemplate>

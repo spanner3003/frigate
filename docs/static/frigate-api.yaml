@@ -4929,10 +4929,7 @@ paths:
       tags:
         - Media
       summary: Event Snapshot
-      description: >-
-        Returns a snapshot image for the specified object id. NOTE: The query
-        params only take affect while the event is in-progress. Once the event
-        has ended the snapshot configuration is used.
+      description: Returns a snapshot image for the specified object id.
       operationId: event_snapshot_events__event_id__snapshot_jpg_get
       parameters:
         - name: event_id
@@ -4989,7 +4986,6 @@ paths:
             anyOf:
               - type: integer
               - type: "null"
-            default: 70
             title: Quality
       responses:
         "200":
@@ -6894,6 +6890,11 @@ components:
           type: boolean
           title: Force
           description: "If True, bypass safety threshold checks"
+          default: false
+        verbose:
+          type: boolean
+          title: Verbose
+          description: "If True, write full orphan file list to /config/media_sync/<job_id>.txt"
           default: false
       type: object
       title: MediaSyncBody

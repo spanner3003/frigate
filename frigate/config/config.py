@@ -25,6 +25,7 @@ from frigate.plus import PlusApi
 from frigate.util.builtin import (
     deep_merge,
     get_ffmpeg_arg_list,
+    load_labels,
 )
 from frigate.util.config import (
     CURRENT_CONFIG_VERSION,
@@ -40,7 +41,7 @@ from frigate.util.services import auto_detect_hwaccel
 from .auth import AuthConfig
 from .base import FrigateBaseModel
 from .camera import CameraConfig, CameraLiveConfig
-from .camera.audio import AudioConfig
+from .camera.audio import AudioConfig, AudioFilterConfig
 from .camera.birdseye import BirdseyeConfig
 from .camera.detect import DetectConfig
 from .camera.ffmpeg import FfmpegConfig
@@ -473,7 +474,7 @@ class FrigateConfig(FrigateBaseModel):
     live: CameraLiveConfig = Field(
         default_factory=CameraLiveConfig,
         title="Live playback",
-        description="Settings used by the Web UI to control live stream resolution and quality.",
+        description="Settings to control the jsmpeg live stream resolution and quality. This does not affect restreamed cameras that use go2rtc for live view.",
     )
     motion: Optional[MotionConfig] = Field(
         default=None,
@@ -498,7 +499,7 @@ class FrigateConfig(FrigateBaseModel):
     snapshots: SnapshotsConfig = Field(
         default_factory=SnapshotsConfig,
         title="Snapshots",
-        description="Settings for saved JPEG snapshots of tracked objects for all cameras; can be overridden per-camera.",
+        description="Settings for API-generated snapshots of tracked objects for all cameras; can be overridden per-camera.",
     )
     timestamp_style: TimestampStyleConfig = Field(
         default_factory=TimestampStyleConfig,
@@ -612,6 +613,21 @@ class FrigateConfig(FrigateBaseModel):
         # auto detect hwaccel args
         if self.ffmpeg.hwaccel_args == "auto":
             self.ffmpeg.hwaccel_args = auto_detect_hwaccel()
+
+        # Populate global audio filters for all audio labels
+        all_audio_labels = {
+            label
+            for label in load_labels("/audio-labelmap.txt", prefill=521).values()
+            if label
+        }
+
+        if self.audio.filters is None:
+            self.audio.filters = {}
+
+        for key in sorted(all_audio_labels - self.audio.filters.keys()):
+            self.audio.filters[key] = AudioFilterConfig()
+
+        self.audio.filters = dict(sorted(self.audio.filters.items()))
 
         # Global config to propagate down to camera level
         global_config = self.model_dump(
@@ -748,7 +764,7 @@ class FrigateConfig(FrigateBaseModel):
                 )
 
             # Default min_initialized configuration
-            min_initialized = int(camera_config.detect.fps / 2)
+            min_initialized = max(int(camera_config.detect.fps / 2), 2)
             if camera_config.detect.min_initialized is None:
                 camera_config.detect.min_initialized = min_initialized
 
@@ -789,6 +805,16 @@ class FrigateConfig(FrigateBaseModel):
             )
             camera_config.review.genai.enabled_in_config = (
                 camera_config.review.genai.enabled
+            )
+
+            if camera_config.audio.filters is None:
+                camera_config.audio.filters = {}
+
+            for key in sorted(all_audio_labels - camera_config.audio.filters.keys()):
+                camera_config.audio.filters[key] = AudioFilterConfig()
+
+            camera_config.audio.filters = dict(
+                sorted(camera_config.audio.filters.items())
             )
 
             # Add default filters
@@ -932,11 +958,6 @@ class FrigateConfig(FrigateBaseModel):
                     raise ValueError(
                         f"Camera {camera.name} has audio transcription enabled, but audio detection is not enabled for this camera. Audio detection must be enabled for cameras with audio transcription when it is disabled globally."
                     )
-
-        if self.plus_api and not self.snapshots.clean_copy:
-            logger.warning(
-                "Frigate+ is configured but clean snapshots are not enabled, submissions to Frigate+ will not be possible./"
-            )
 
         # Validate auth roles against cameras
         camera_names = set(self.cameras.keys())

@@ -43,6 +43,7 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { formatUnixTimestampToDateTime } from "@/utils/dateUtil";
+import { use24HourTime } from "@/hooks/use-date-utils";
 import FilterSwitch from "@/components/filter/FilterSwitch";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Trans, useTranslation } from "react-i18next";
@@ -58,7 +59,7 @@ import type { ConfigSectionData, JsonObject } from "@/types/configForm";
 import { sanitizeSectionData } from "@/utils/configUtil";
 import type { SectionRendererProps } from "./registry";
 
-const NOTIFICATION_SERVICE_WORKER = "/notification-worker.js";
+const NOTIFICATION_SERVICE_WORKER = "/notifications-worker.js";
 import {
   SettingsGroupCard,
   SPLIT_ROW_CLASS_NAME,
@@ -126,6 +127,8 @@ export default function NotificationsSettingsExtras({
       .getRegistration(NOTIFICATION_SERVICE_WORKER)
       .then((worker) => {
         if (worker) {
+          // Trigger a check for an updated service worker script
+          worker.update().catch(() => {});
           setRegistration(worker);
         } else {
           setRegistration(null);
@@ -633,7 +636,9 @@ export default function NotificationsSettingsExtras({
                       Notification.requestPermission().then((permission) => {
                         if (permission === "granted") {
                           navigator.serviceWorker
-                            .register(NOTIFICATION_SERVICE_WORKER)
+                            .register(NOTIFICATION_SERVICE_WORKER, {
+                              updateViaCache: "none",
+                            })
                             .then((workerRegistration) => {
                               setRegistration(workerRegistration);
 
@@ -748,6 +753,7 @@ export function CameraNotificationSwitch({
   };
 
   const locale = useDateLocale();
+  const is24Hour = use24HourTime(config);
 
   const formatSuspendedUntil = (timestamp: string) => {
     if (timestamp === "0") return t("time.untilForRestart", { ns: "common" });
@@ -756,14 +762,13 @@ export function CameraNotificationSwitch({
       time_style: "medium",
       date_style: "medium",
       timezone: config?.ui.timezone,
-      date_format:
-        config?.ui.time_format == "24hour"
-          ? t("time.formattedTimestampMonthDayHourMinute.24hour", {
-              ns: "common",
-            })
-          : t("time.formattedTimestampMonthDayHourMinute.12hour", {
-              ns: "common",
-            }),
+      date_format: is24Hour
+        ? t("time.formattedTimestampMonthDayHourMinute.24hour", {
+            ns: "common",
+          })
+        : t("time.formattedTimestampMonthDayHourMinute.12hour", {
+            ns: "common",
+          }),
       locale: locale,
     });
     return t("time.untilForTime", { ns: "common", time });

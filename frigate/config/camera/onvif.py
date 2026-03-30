@@ -92,7 +92,7 @@ class PtzAutotrackConfig(FrigateBaseModel):
 
 
 class OnvifConfig(FrigateBaseModel):
-    host: str = Field(
+    host: EnvString = Field(
         default="",
         title="ONVIF host",
         description="Host (and optional scheme) for the ONVIF service for this camera.",
@@ -116,6 +116,11 @@ class OnvifConfig(FrigateBaseModel):
         default=False,
         title="Disable TLS verify",
         description="Skip TLS verification and disable digest auth for ONVIF (unsafe; use in safe networks only).",
+    )
+    profile: Optional[str] = Field(
+        default=None,
+        title="ONVIF profile",
+        description="Specific ONVIF media profile to use for PTZ control, matched by token or name. If not set, the first profile with valid PTZ configuration is selected automatically.",
     )
     autotracking: PtzAutotrackConfig = Field(
         default_factory=PtzAutotrackConfig,

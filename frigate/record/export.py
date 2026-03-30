@@ -36,9 +36,53 @@ logger = logging.getLogger(__name__)
 DEFAULT_TIME_LAPSE_FFMPEG_ARGS = "-vf setpts=0.04*PTS -r 30"
 TIMELAPSE_DATA_INPUT_ARGS = "-an -skip_frame nokey"
 
+# ffmpeg flags that can read from or write to arbitrary files
+BLOCKED_FFMPEG_ARGS = frozenset(
+    {
+        "-i",
+        "-filter_script",
+        "-vstats_file",
+        "-passlogfile",
+        "-sdp_file",
+        "-dump_attachment",
+    }
+)
 
-def lower_priority():
-    os.nice(PROCESS_PRIORITY_LOW)
+
+def validate_ffmpeg_args(args: str) -> tuple[bool, str]:
+    """Validate that user-provided ffmpeg args don't allow input/output injection.
+
+    Blocks:
+    - The -i flag and other flags that read/write arbitrary files
+    - Absolute/relative file paths (potential extra outputs)
+    - URLs and ffmpeg protocol references (data exfiltration)
+    """
+    if not args or not args.strip():
+        return True, ""
+
+    tokens = args.split()
+    for token in tokens:
+        # Block flags that could inject inputs or write to arbitrary files
+        if token.lower() in BLOCKED_FFMPEG_ARGS:
+            return False, f"Forbidden ffmpeg argument: {token}"
+
+        # Block tokens that look like file paths (potential output injection)
+        if (
+            token.startswith("/")
+            or token.startswith("./")
+            or token.startswith("../")
+            or token.startswith("~")
+        ):
+            return False, "File paths are not allowed in custom ffmpeg arguments"
+
+        # Block URLs and ffmpeg protocol references (e.g. http://, tcp://, pipe:, file:)
+        if "://" in token or token.startswith("pipe:") or token.startswith("file:"):
+            return (
+                False,
+                "Protocol references are not allowed in custom ffmpeg arguments",
+            )
+
+    return True, ""
 
 
 class PlaybackSourceEnum(str, Enum):
@@ -102,7 +146,7 @@ class RecordingExporter(threading.Thread):
         ):
             # has preview mp4
             try:
-                preview: Previews = (
+                preview = (
                     Previews.select(
                         Previews.camera,
                         Previews.path,
@@ -156,9 +200,9 @@ class RecordingExporter(threading.Thread):
         else:
             # need to generate from existing images
             preview_dir = os.path.join(CACHE_DIR, "preview_frames")
-            file_start = f"preview_{self.camera}"
-            start_file = f"{file_start}-{self.start_time}.{PREVIEW_FRAME_TYPE}"
-            end_file = f"{file_start}-{self.end_time}.{PREVIEW_FRAME_TYPE}"
+            file_start = f"preview_{self.camera}-"
+            start_file = f"{file_start}{self.start_time}.{PREVIEW_FRAME_TYPE}"
+            end_file = f"{file_start}{self.end_time}.{PREVIEW_FRAME_TYPE}"
             selected_preview = None
 
             for file in sorted(os.listdir(preview_dir)):
@@ -183,20 +227,19 @@ class RecordingExporter(threading.Thread):
 
     def get_record_export_command(
         self, video_path: str, use_hwaccel: bool = True
-    ) -> list[str]:
+    ) -> tuple[list[str], str | list[str]]:
         # handle case where internal port is a string with ip:port
         internal_port = self.config.networking.listen.internal
         if type(internal_port) is str:
             internal_port = int(internal_port.split(":")[-1])
 
+        playlist_lines: list[str] = []
         if (self.end_time - self.start_time) <= MAX_PLAYLIST_SECONDS:
-            playlist_lines = f"http://127.0.0.1:{internal_port}/vod/{self.camera}/start/{self.start_time}/end/{self.end_time}/index.m3u8"
+            playlist_url = f"http://127.0.0.1:{internal_port}/vod/{self.camera}/start/{self.start_time}/end/{self.end_time}/index.m3u8"
             ffmpeg_input = (
-                f"-y -protocol_whitelist pipe,file,http,tcp -i {playlist_lines}"
+                f"-y -protocol_whitelist pipe,file,http,tcp -i {playlist_url}"
             )
         else:
-            playlist_lines = []
-
             # get full set of recordings
             export_recordings = (
                 Recordings.select(
@@ -257,16 +300,16 @@ class RecordingExporter(threading.Thread):
 
     def get_preview_export_command(
         self, video_path: str, use_hwaccel: bool = True
-    ) -> list[str]:
+    ) -> tuple[list[str], list[str]]:
         playlist_lines = []
         codec = "-c copy"
 
         if is_current_hour(self.start_time):
             # get list of current preview frames
             preview_dir = os.path.join(CACHE_DIR, "preview_frames")
-            file_start = f"preview_{self.camera}"
-            start_file = f"{file_start}-{self.start_time}.{PREVIEW_FRAME_TYPE}"
-            end_file = f"{file_start}-{self.end_time}.{PREVIEW_FRAME_TYPE}"
+            file_start = f"preview_{self.camera}-"
+            start_file = f"{file_start}{self.start_time}.{PREVIEW_FRAME_TYPE}"
+            end_file = f"{file_start}{self.end_time}.{PREVIEW_FRAME_TYPE}"
 
             for file in sorted(os.listdir(preview_dir)):
                 if not file.startswith(file_start):
@@ -307,7 +350,6 @@ class RecordingExporter(threading.Thread):
             .iterator()
         )
 
-        preview: Previews
         for preview in export_previews:
             playlist_lines.append(f"file '{preview.path}'")
 
@@ -393,10 +435,9 @@ class RecordingExporter(threading.Thread):
             return
 
         p = sp.run(
-            ffmpeg_cmd,
+            ["nice", "-n", str(PROCESS_PRIORITY_LOW)] + ffmpeg_cmd,
             input="\n".join(playlist_lines),
             encoding="ascii",
-            preexec_fn=lower_priority,
             capture_output=True,
         )
 
@@ -421,10 +462,9 @@ class RecordingExporter(threading.Thread):
                 )
 
             p = sp.run(
-                ffmpeg_cmd,
+                ["nice", "-n", str(PROCESS_PRIORITY_LOW)] + ffmpeg_cmd,
                 input="\n".join(playlist_lines),
                 encoding="ascii",
-                preexec_fn=lower_priority,
                 capture_output=True,
             )
 
@@ -445,7 +485,7 @@ class RecordingExporter(threading.Thread):
         logger.debug(f"Finished exporting {video_path}")
 
 
-def migrate_exports(ffmpeg: FfmpegConfig, camera_names: list[str]):
+def migrate_exports(ffmpeg: FfmpegConfig, camera_names: list[str]) -> None:
     Path(os.path.join(CLIPS_DIR, "export")).mkdir(exist_ok=True)
 
     exports = []

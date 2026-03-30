@@ -1,13 +1,14 @@
 """Media sync job management with background execution."""
 
 import logging
+import os
 import threading
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional
+from typing import Optional, cast
 
 from frigate.comms.inter_process import InterProcessRequestor
-from frigate.const import UPDATE_JOB_STATE
+from frigate.const import CONFIG_DIR, UPDATE_JOB_STATE
 from frigate.jobs.job import Job
 from frigate.jobs.manager import (
     get_current_job,
@@ -16,7 +17,7 @@ from frigate.jobs.manager import (
     set_current_job,
 )
 from frigate.types import JobStatusTypesEnum
-from frigate.util.media import sync_all_media
+from frigate.util.media import sync_all_media, write_orphan_report
 
 logger = logging.getLogger(__name__)
 
@@ -29,6 +30,7 @@ class MediaSyncJob(Job):
     dry_run: bool = False
     media_types: list[str] = field(default_factory=lambda: ["all"])
     force: bool = False
+    verbose: bool = False
 
 
 class MediaSyncRunner(threading.Thread):
@@ -60,6 +62,21 @@ class MediaSyncRunner(threading.Thread):
                 media_types=self.job.media_types,
                 force=self.job.force,
             )
+
+            # Write verbose report if requested
+            if self.job.verbose:
+                report_dir = os.path.join(CONFIG_DIR, "media_sync")
+                os.makedirs(report_dir, exist_ok=True)
+                report_path = os.path.join(report_dir, f"{self.job.id}.txt")
+                write_orphan_report(
+                    results,
+                    report_path,
+                    job_id=self.job.id,
+                    dry_run=self.job.dry_run,
+                )
+                logger.info(
+                    "Media sync verbose orphan report written to %s", report_path
+                )
 
             # Store results and mark as complete
             self.job.results = results.to_dict()
@@ -95,6 +112,7 @@ def start_media_sync_job(
     dry_run: bool = False,
     media_types: Optional[list[str]] = None,
     force: bool = False,
+    verbose: bool = False,
 ) -> Optional[str]:
     """Start a new media sync job if none is currently running.
 
@@ -104,7 +122,7 @@ def start_media_sync_job(
     if job_is_running("media_sync"):
         current = get_current_job("media_sync")
         logger.warning(
-            f"Media sync job {current.id} is already running. Rejecting new request."
+            f"Media sync job {current.id if current else 'unknown'} is already running. Rejecting new request."
         )
         return None
 
@@ -113,6 +131,7 @@ def start_media_sync_job(
         dry_run=dry_run,
         media_types=media_types or ["all"],
         force=force,
+        verbose=verbose,
     )
 
     logger.debug(f"Creating new media sync job: {job.id}")
@@ -127,9 +146,9 @@ def start_media_sync_job(
 
 def get_current_media_sync_job() -> Optional[MediaSyncJob]:
     """Get the current running/queued media sync job, if any."""
-    return get_current_job("media_sync")
+    return cast(Optional[MediaSyncJob], get_current_job("media_sync"))
 
 
 def get_media_sync_job_by_id(job_id: str) -> Optional[MediaSyncJob]:
     """Get media sync job by ID. Currently only tracks the current job."""
-    return get_job_by_id("media_sync", job_id)
+    return cast(Optional[MediaSyncJob], get_job_by_id("media_sync", job_id))
