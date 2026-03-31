@@ -26,9 +26,14 @@ jobs:
         uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Cleanup Docker system before build
+      - name: Free disk space
         run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
           docker system prune -af
+          df -h /
       - name: Set up QEMU and Buildx
         id: setup
         uses: ./.github/actions/setup
@@ -53,9 +58,14 @@ jobs:
         uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Cleanup Docker system before build
+      - name: Free disk space
         run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
           docker system prune -af
+          df -h /
       - name: Set up QEMU and Buildx
         id: setup
         uses: ./.github/actions/setup
@@ -91,9 +101,14 @@ jobs:
         uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Cleanup Docker system before build
+      - name: Free disk space
         run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
           docker system prune -af
+          df -h /
       - name: Set up QEMU and Buildx
         id: setup
         uses: ./.github/actions/setup
@@ -125,9 +140,14 @@ jobs:
         uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Cleanup Docker system before build
+      - name: Free disk space
         run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
           docker system prune -af
+          df -h /
       - name: Set up QEMU and Buildx
         id: setup
         uses: ./.github/actions/setup
@@ -169,9 +189,14 @@ jobs:
         uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Cleanup Docker system before build
+      - name: Free disk space
         run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
           docker system prune -af
+          df -h /
       - name: Set up QEMU and Buildx
         id: setup
         uses: ./.github/actions/setup
@@ -197,9 +222,14 @@ jobs:
         uses: actions/checkout@v6
         with:
           persist-credentials: false
-      - name: Cleanup Docker system before build
+      - name: Free disk space
         run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
           docker system prune -af
+          df -h /
       - name: Set up QEMU and Buildx
         id: setup
         uses: ./.github/actions/setup
@@ -250,16 +280,24 @@ jobs:
       - arm64_build
     steps:
       - name: Check out code
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
         with:
           persist-credentials: false
+      - name: Free disk space
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /usr/local/lib/android
+          sudo rm -rf /opt/ghc
+          sudo rm -rf /opt/hostedtoolcache
+          docker system prune -af
+          df -h /
       - name: Set up QEMU and Buildx
         id: setup
         uses: ./.github/actions/setup
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push Axera build
-        uses: docker/bake-action@v6
+        uses: docker/bake-action@v7
         with:
           source: .
           push: true
