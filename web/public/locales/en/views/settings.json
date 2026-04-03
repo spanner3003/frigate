@@ -539,6 +539,7 @@
     },
     "restart_required": "Restart required (masks/zones changed)",
     "disabledInConfig": "Item is disabled in the config file",
+    "addDisabledProfile": "Add to the base config first, then override in the profile",
     "profileBase": "(base)",
     "profileOverride": "(override)",
     "toast": {
@@ -612,6 +613,10 @@
           "title": "Confirm Delete",
           "desc": "Are you sure you want to delete the {{type}} <em>{{name}}</em>?",
           "success": "{{name}} has been deleted."
+        },
+        "revertOverride": {
+          "title": "Revert to Base Config",
+          "desc": "This will remove the profile override for the {{type}} <em>{{name}}</em> and revert to the base configuration."
         },
         "error": {
           "mustBeFinished": "Polygon drawing must be finished before saving."
@@ -1409,7 +1414,8 @@
       "keyDuplicate": "Detector name already exists.",
       "noSchema": "No detector schemas are available.",
       "none": "No detector instances configured.",
-      "add": "Add detector"
+      "add": "Add detector",
+      "addCustomKey": "Add custom key"
     },
     "record": {
       "title": "Recording Settings"
@@ -1637,6 +1643,10 @@
     },
     "snapshots": {
       "detectDisabled": "Object detection is disabled. Snapshots are generated from tracked objects and will not be created."
+    },
+    "detectors": {
+      "mixedTypes": "All detectors must use the same type. Remove existing detectors to use a different type.",
+      "mixedTypesSuggestion": "All detectors must use the same type. Remove existing detectors or select {{type}}."
     }
   }
 }
