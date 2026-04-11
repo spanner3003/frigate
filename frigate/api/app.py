@@ -125,6 +125,16 @@ def metrics(request: Request):
     return Response(content=content, media_type=content_type)
 
 
+@router.get(
+    "/genai/models",
+    dependencies=[Depends(allow_any_authenticated())],
+    summary="List available GenAI models",
+    description="Returns available models for each configured GenAI provider.",
+)
+def genai_models(request: Request):
+    return JSONResponse(content=request.app.genai_manager.list_models())
+
+
 @router.get("/config", dependencies=[Depends(allow_any_authenticated())])
 def config(request: Request):
     config_obj: FrigateConfig = request.app.frigate_config
@@ -683,6 +693,9 @@ def config_set(request: Request, body: AppConfigSetBody):
 
                 if request.app.stats_emitter is not None:
                     request.app.stats_emitter.config = config
+
+                if request.app.dispatcher is not None:
+                    request.app.dispatcher.config = config
 
                 if body.update_topic:
                     if body.update_topic.startswith("config/cameras/"):

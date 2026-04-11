@@ -24,6 +24,7 @@ import { ReviewLabelSwitchesWidget } from "./widgets/ReviewLabelSwitchesWidget";
 import { ZoneSwitchesWidget } from "./widgets/ZoneSwitchesWidget";
 import { ArrayAsTextWidget } from "./widgets/ArrayAsTextWidget";
 import { FfmpegArgsWidget } from "./widgets/FfmpegArgsWidget";
+import { GenAIModelWidget } from "./widgets/GenAIModelWidget";
 import { GenAIRolesWidget } from "./widgets/GenAIRolesWidget";
 import { InputRolesWidget } from "./widgets/InputRolesWidget";
 import { TimezoneSelectWidget } from "./widgets/TimezoneSelectWidget";
@@ -47,6 +48,8 @@ import { LayoutGridField } from "./fields/LayoutGridField";
 import { DetectorHardwareField } from "./fields/DetectorHardwareField";
 import { ReplaceRulesField } from "./fields/ReplaceRulesField";
 import { CameraInputsField } from "./fields/CameraInputsField";
+import { DictAsYamlField } from "./fields/DictAsYamlField";
+import { KnownPlatesField } from "./fields/KnownPlatesField";
 
 export interface FrigateTheme {
   widgets: RegistryWidgetsType;
@@ -64,6 +67,7 @@ export const frigateTheme: FrigateTheme = {
     ArrayAsTextWidget: ArrayAsTextWidget,
     FfmpegArgsWidget: FfmpegArgsWidget,
     CameraPathWidget: CameraPathWidget,
+    genaiModel: GenAIModelWidget,
     genaiRoles: GenAIRolesWidget,
     inputRoles: InputRolesWidget,
     // Custom widgets
@@ -101,5 +105,7 @@ export const frigateTheme: FrigateTheme = {
     DetectorHardwareField: DetectorHardwareField,
     ReplaceRulesField: ReplaceRulesField,
     CameraInputsField: CameraInputsField,
+    DictAsYamlField: DictAsYamlField,
+    KnownPlatesField: KnownPlatesField,
   },
 };

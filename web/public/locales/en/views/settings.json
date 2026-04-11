@@ -1326,6 +1326,10 @@
       "keyPlaceholder": "New key",
       "remove": "Remove"
     },
+    "knownPlates": {
+      "namePlaceholder": "e.g., Wife's Car",
+      "platePlaceholder": "Plate number or regex"
+    },
     "timezone": {
       "defaultOption": "Use browser timezone"
     },
@@ -1485,7 +1489,12 @@
       "title": "Timestamp Settings"
     },
     "searchPlaceholder": "Search...",
-    "addCustomLabel": "Add custom label..."
+    "addCustomLabel": "Add custom label...",
+    "genaiModel": {
+      "placeholder": "Select model…",
+      "search": "Search models…",
+      "noModels": "No models available"
+    }
   },
   "globalConfig": {
     "title": "Global Configuration",

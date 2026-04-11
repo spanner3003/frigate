@@ -132,6 +132,29 @@ class OllamaClient(GenAIClient):
             logger.warning("Ollama returned an error: %s", str(e))
             return None
 
+    def list_models(self) -> list[str]:
+        """Return available model names from the Ollama server."""
+        client = self.provider
+        if client is None:
+            # Provider init may have failed due to invalid model, but we can
+            # still list available models with a fresh client.
+            if not self.genai_config.base_url:
+                return []
+            try:
+                client = ApiClient(
+                    host=self.genai_config.base_url, timeout=self.timeout
+                )
+            except Exception:
+                return []
+        try:
+            response = client.list()
+            return sorted(
+                m.get("name", m.get("model", "")) for m in response.get("models", [])
+            )
+        except Exception as e:
+            logger.warning("Failed to list Ollama models: %s", e)
+            return []
+
     def get_context_size(self) -> int:
         """Get the context window size for Ollama."""
         return int(

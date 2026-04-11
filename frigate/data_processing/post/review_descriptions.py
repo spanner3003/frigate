@@ -19,9 +19,15 @@ from frigate.comms.inter_process import InterProcessRequestor
 from frigate.config import FrigateConfig
 from frigate.config.camera import CameraConfig
 from frigate.config.camera.review import GenAIReviewConfig, ImageSourceEnum
-from frigate.const import CACHE_DIR, CLIPS_DIR, UPDATE_REVIEW_DESCRIPTION
+from frigate.const import (
+    ATTRIBUTE_LABEL_DISPLAY_MAP,
+    CACHE_DIR,
+    CLIPS_DIR,
+    UPDATE_REVIEW_DESCRIPTION,
+)
 from frigate.data_processing.types import PostProcessDataEnum
 from frigate.genai import GenAIClient
+from frigate.genai.manager import GenAIClientManager
 from frigate.models import Recordings, ReviewSegment
 from frigate.util.builtin import EventsPerSecond, InferenceSpeed
 from frigate.util.image import get_image_from_recording
@@ -41,12 +47,12 @@ class ReviewDescriptionProcessor(PostProcessorApi):
         config: FrigateConfig,
         requestor: InterProcessRequestor,
         metrics: DataProcessorMetrics,
-        client: GenAIClient,
+        genai_manager: GenAIClientManager,
     ):
         super().__init__(config, metrics, None)
         self.requestor = requestor
         self.metrics = metrics
-        self.genai_client = client
+        self.genai_manager = genai_manager
         self.review_desc_speed = InferenceSpeed(self.metrics.review_desc_speed)
         self.review_desc_dps = EventsPerSecond()
         self.review_desc_dps.start()
@@ -63,7 +69,12 @@ class ReviewDescriptionProcessor(PostProcessorApi):
         Estimates ~1 token per 1250 pixels. Targets 98% context utilization with safety margin.
         Capped at 20 frames.
         """
-        context_size = self.genai_client.get_context_size()
+        client = self.genai_manager.description_client
+
+        if client is None:
+            return 3
+
+        context_size = client.get_context_size()
         camera_config = self.config.cameras[camera]
 
         detect_width = camera_config.detect.width
@@ -109,6 +120,9 @@ class ReviewDescriptionProcessor(PostProcessorApi):
         self.metrics.review_desc_dps.value = self.review_desc_dps.eps()
 
         if data_type != PostProcessDataEnum.review:
+            return
+
+        if self.genai_manager.description_client is None:
             return
 
         camera = data["after"]["camera"]
@@ -200,7 +214,7 @@ class ReviewDescriptionProcessor(PostProcessorApi):
                 target=run_analysis,
                 args=(
                     self.requestor,
-                    self.genai_client,
+                    self.genai_manager.description_client,
                     self.review_desc_speed,
                     camera_config,
                     final_data,
@@ -316,7 +330,12 @@ class ReviewDescriptionProcessor(PostProcessorApi):
                     os.path.join(CLIPS_DIR, "genai-requests", f"{start_ts}-{end_ts}")
                 ).mkdir(parents=True, exist_ok=True)
 
-            return self.genai_client.generate_review_summary(
+            client = self.genai_manager.description_client
+
+            if client is None:
+                return None
+
+            return client.generate_review_summary(
                 start_ts,
                 end_ts,
                 events_with_context,
@@ -542,10 +561,11 @@ def run_analysis(
         if "-verified" in label:
             continue
         elif label in labelmap_objects:
-            object_type = titlecase(label.replace("_", " "))
+            object_type = label.replace("_", " ")
 
             if label in attribute_labels:
-                unified_objects.append(f"{object_type} (delivery/service)")
+                display_name = ATTRIBUTE_LABEL_DISPLAY_MAP.get(label, object_type)
+                unified_objects.append(f"{display_name} (delivery/service)")
             else:
                 unified_objects.append(object_type)
 
